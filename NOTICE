@@ -1,0 +1,18 @@
+Ender Trigon Unofficial
+Copyright 2026 lingmu
+
+This product is an unofficial derivative of Ender Trigon:
+https://github.com/nonamecrackers2/ender-trigon
+
+Ender Trigon source code and original assets:
+Copyright 2022 nonamecrackers2
+Licensed under the Apache License, Version 2.0.
+
+The unofficial port changes the Minecraft and NeoForge target to 1.21.1,
+uses the ender_trigon_unofficial namespace, replaces the legacy CrackersLib
+configuration integration with NeoForge configuration APIs, and contains
+additional compatibility changes. Modified source files retain the upstream
+copyright and license notices.
+
+Minecraft is a trademark of Microsoft Corporation. This project is not
+affiliated with or endorsed by Microsoft or Mojang Studios.

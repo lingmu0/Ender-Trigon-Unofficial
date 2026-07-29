@@ -1,0 +1,15 @@
+{
+  "block.ender_trigon_unofficial.baby_dragon_egg": "Baby Dragon Egg",
+  "block.ender_trigon_unofficial.baby_dragon_egg.use": "Place down to spawn a tamed, baby Ender Dragon",
+  "death.attack.dragonFlame": "%1$s was incinerated by %2$s",
+  "death.attack.dragonFlame.item": "%1$s was incinerated by %2$s using %3$s",
+  "ender_trigon_unofficial.subtitle.baby_dragon_egg_breaks": "Baby Dragon Egg Breaks",
+  "ender_trigon_unofficial.subtitle.dragon_horn": "Dragon horn plays",
+  "ender_trigon_unofficial.subtitle.dragon_lays_egg": "Ender Dragon Lays Egg",
+  "entity.ender_trigon_unofficial.baby_ender_dragon": "Baby Ender Dragon",
+  "entity.ender_trigon_unofficial.dragon_flame": "Dragon Flame",
+  "instrument.ender_trigon_unofficial.dragon_horn": "Dragon Calling",
+  "item.ender_trigon_unofficial.dragon_horn": "Dragon Horn",
+  "item.ender_trigon_unofficial.dragon_horn.use": "Use to call tamed baby Ender Dragons",
+  "itemGroup.ender_trigon_unofficial": "Ender Trigon Unofficial"
+}

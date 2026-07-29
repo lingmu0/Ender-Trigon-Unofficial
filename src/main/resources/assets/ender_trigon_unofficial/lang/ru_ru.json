@@ -1,0 +1,9 @@
+{
+	"entity.ender_trigon_unofficial.baby_ender_dragon": "Малыш Эндер Дракон",
+	"entity.ender_trigon_unofficial.dragon_flame": "Пламя Дракона",
+	"block.ender_trigon_unofficial.baby_dragon_egg": "Яйцо Малыша Дракона",
+	"death.attack.dragonFlame": "%1$s был сожжен %2$s",
+  	"death.attack.dragonFlame.item": "%1$s был сожжен %2$s используя %3$s",
+  	"ender_trigon_unofficial.subtitle.baby_dragon_egg_breaks": "Яйцо Малыша Эндер Дракона лопается",
+  	"ender_trigon_unofficial.subtitle.dragon_lays_egg": "Эндер Дракон откладывает яйцо"
+}

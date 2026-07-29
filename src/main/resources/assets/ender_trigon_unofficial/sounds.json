@@ -1,0 +1,46 @@
+{
+	"baby_dragon_egg_breaks": 
+	{
+    	"category": "blocks",
+    	"subtitle": "ender_trigon_unofficial.subtitle.baby_dragon_egg_breaks",
+    	"sounds": 
+    	[
+    		{
+    			"type": "event",
+    			"name": "minecraft:entity.turtle.egg_break"
+    		}
+    	]
+	},
+	"dragon_lays_egg": 
+	{
+    	"category": "blocks",
+    	"subtitle": "ender_trigon_unofficial.subtitle.dragon_lays_egg",
+    	"sounds": 
+    	[
+    		{
+    			"type": "event",
+    			"name": "minecraft:entity.turtle.lay_egg"
+    		}
+    	]
+	},
+	"dragon_horn": 
+	{
+		"category": "player",
+		"subtitle": "ender_trigon_unofficial.subtitle.dragon_horn",
+		"sounds":
+		[
+			{
+				"name": "ender_trigon_unofficial:dragon_horn-01"
+			},
+			{
+				"name": "ender_trigon_unofficial:dragon_horn-02"
+			},
+			{
+				"name": "ender_trigon_unofficial:dragon_horn-03"
+			},
+			{
+				"name": "ender_trigon_unofficial:dragon_horn-04"
+			}
+		]
+	}
+}

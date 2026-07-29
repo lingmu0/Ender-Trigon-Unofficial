@@ -1,0 +1,15 @@
+{
+  "itemGroup.ender_trigon_unofficial": "末影三首龙（非官方版）",
+  "block.ender_trigon_unofficial.baby_dragon_egg": "幼年末影龙蛋",
+  "block.ender_trigon_unofficial.baby_dragon_egg.use": "放置后会孵化一只已驯服的幼年末影龙",
+  "item.ender_trigon_unofficial.dragon_horn": "龙之号角",
+  "item.ender_trigon_unofficial.dragon_horn.use": "吹响后可召唤附近已驯服的幼年末影龙",
+  "entity.ender_trigon_unofficial.baby_ender_dragon": "幼年末影龙",
+  "entity.ender_trigon_unofficial.dragon_flame": "龙焰",
+  "death.attack.dragonFlame": "%1$s 被 %2$s 的龙焰焚烧了",
+  "death.attack.dragonFlame.item": "%1$s 被 %2$s 使用 %3$s 的龙焰焚烧了",
+  "ender_trigon_unofficial.subtitle.baby_dragon_egg_breaks": "幼龙蛋破裂",
+  "ender_trigon_unofficial.subtitle.dragon_lays_egg": "末影龙产卵",
+  "ender_trigon_unofficial.subtitle.dragon_horn": "龙之号角响起",
+  "instrument.ender_trigon_unofficial.dragon_horn": "召龙号音"
+}
