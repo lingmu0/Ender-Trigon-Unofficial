@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 1.20.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package nonamecrackers2.endertrigon.common.entity;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -72,7 +72,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -102,6 +102,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	public BabyEnderDragon(EntityType<? extends BabyEnderDragon> type, Level level)
 	{
 		super(type, level);
+		this.setMaxUpStep(1.0F);
 		this.lookControl = new BabyEnderDragon.DragonLookControl(this);
 		this.moveControl = new BabyEnderDragon.DragonMoveControl(this);
 	}
@@ -125,7 +126,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	//TODO: Test step height
 	public static AttributeSupplier.Builder createAttributes()
 	{
-		return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.FOLLOW_RANGE, 32.0D).add(Attributes.ATTACK_DAMAGE, 6.0D).add(Attributes.STEP_HEIGHT, 1.0F);
+		return Monster.createMonsterAttributes().add(Attributes.MAX_HEALTH, 8.0D).add(Attributes.FOLLOW_RANGE, 32.0D).add(Attributes.ATTACK_DAMAGE, 6.0D);
 	}
 	
 	@Override
@@ -142,7 +143,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	}
 	
 	@Override
-	public void setTame(boolean flag, boolean tamingSideEffects)
+	public void setTame(boolean flag)
 	{
 		if (flag != this.isTame())
 		{
@@ -151,14 +152,14 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 			else
 				this.targetSelector.removeGoal(this.monsterTargeting);
 		}
-		super.setTame(flag, tamingSideEffects);
+		super.setTame(flag);
 	}
 	
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder)
+	protected void defineSynchedData()
 	{
-		super.defineSynchedData(builder);
-		builder.define(REMAINING_ANGER_TIME, 0);
+		super.defineSynchedData();
+		this.entityData.define(REMAINING_ANGER_TIME, 0);
 	}
 	
 	@Override
@@ -181,7 +182,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	public void readAdditionalSaveData(CompoundTag tag)
 	{
 		super.readAdditionalSaveData(tag);
-		this.setAnchor(NbtUtils.readBlockPos(tag, "Anchor").orElse(BlockPos.ZERO));
+		this.setAnchor(NbtUtils.readBlockPos(tag.getCompound("Anchor")));
 		if (tag.contains("Phase", 3))
 		{
 			int ordinal = tag.getInt("Phase");
@@ -240,12 +241,12 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 				BlockPos ground = this.getBlockPosBelowThatAffectsMyMovement();
 				float f = 0.91F;
 				if (this.onGround())
-					f = this.level().getBlockState(ground).getFriction(this.level(), ground, this) * 0.91F;
+					f = this.level().getBlockState(ground).getBlock().getFriction() * 0.91F;
 
 				float f1 = 0.16277137F / (f * f * f);
 				f = 0.91F;
 				if (this.onGround())
-					f = this.level().getBlockState(ground).getFriction(this.level(), ground, this) * 0.91F;
+					f = this.level().getBlockState(ground).getBlock().getFriction() * 0.91F;
 
 				this.moveRelative(this.onGround() ? 0.1F * f1 : 0.02F, delta);
 				this.move(MoverType.SELF, this.getDeltaMovement());
@@ -321,11 +322,11 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	}
 	
 	@Override
-	public EntityDimensions getDefaultDimensions(Pose pose)
+	public EntityDimensions getDimensions(Pose pose)
 	{
 		if (pose == Pose.SITTING)
 			return SITTING;
-		return super.getDefaultDimensions(pose);
+		return super.getDimensions(pose);
 	}
 	
 	@Override
@@ -427,8 +428,8 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 
 	private boolean canTeleportTo(BlockPos pos)
 	{
-		PathType type = WalkNodeEvaluator.getPathTypeStatic(this, pos.mutable());
-		if (type != PathType.WALKABLE)
+		BlockPathTypes type = WalkNodeEvaluator.getBlockPathTypeStatic(this.level(), pos.mutable());
+		if (type != BlockPathTypes.WALKABLE)
 		{
 			return false;
 		}
@@ -547,9 +548,9 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	}
 	
 	@Override
-	public boolean canBeLeashed()
+	public boolean canBeLeashed(Player player)
 	{
-		return !this.isAngry() && super.canBeLeashed();
+		return !this.isAngry() && super.canBeLeashed(player);
 	}
 	
 	@Override
@@ -571,10 +572,10 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	}
 	
 	@Override
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType type, SpawnGroupData groupData)
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType type, SpawnGroupData groupData, CompoundTag tag)
 	{
 		this.setAnchor(this.blockPosition().above(5));
-		return super.finalizeSpawn(level, difficulty, type, groupData);
+		return super.finalizeSpawn(level, difficulty, type, groupData, tag);
 	}
 	
 	private static class DragonLookControl extends LookControl

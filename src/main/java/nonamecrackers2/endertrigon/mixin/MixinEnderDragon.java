@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 1.20.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -54,7 +56,7 @@ public abstract class MixinEnderDragon extends Mob implements EnderDragonExtensi
 	{
 		return entity instanceof BabyEnderDragon;
 	};
-	@Shadow
+	@Shadow @Final @Mutable
 	private EnderDragonPart[] subEntities;
 	private EnderDragonHead[] otherHeads;
 	
@@ -93,14 +95,14 @@ public abstract class MixinEnderDragon extends Mob implements EnderDragonExtensi
 					DamageSource source = this.damageSources().mobAttack(this);
 					entity.hurt(source, 10.0F);
 					if (this.level() instanceof ServerLevel serverLevel)
-						EnchantmentHelper.doPostAttackEffects(serverLevel, entity, source);
+						this.doEnchantDamageEffects(this, entity);
 				}
 			}
 		}
 	}
 	
 	@Overwrite
-	private void knockBack(ServerLevel level, List<Entity> entities)
+	private void knockBack(List<Entity> entities)
 	{
 		EnderDragon self = this.getSelf();
 		double d0 = (this.getBody().getBoundingBox().minX + this.getBody().getBoundingBox().maxX) / 2.0D;
@@ -118,7 +120,7 @@ public abstract class MixinEnderDragon extends Mob implements EnderDragonExtensi
 				{
 					DamageSource source = this.damageSources().mobAttack(this);
 					entity.hurt(source, 5.0F);
-					EnchantmentHelper.doPostAttackEffects(level, entity, source);
+					this.doEnchantDamageEffects(this, entity);
 				}
 			}
 		}
@@ -144,7 +146,7 @@ public abstract class MixinEnderDragon extends Mob implements EnderDragonExtensi
 	}
 	
 	@Override
-	public boolean ignoreExplosion(Explosion explosion)
+	public boolean ignoreExplosion()
 	{
 		return EnderTrigonDragonPhases.isPhase("CrashPlayer", this.getSelf().getPhaseManager().getCurrentPhase().getPhase());
 	}

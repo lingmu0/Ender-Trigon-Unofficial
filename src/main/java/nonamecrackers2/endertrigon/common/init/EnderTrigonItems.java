@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 1.20.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,51 +16,21 @@
 */
 
 package nonamecrackers2.endertrigon.common.init;
-
-import net.minecraft.core.registries.Registries;
+import java.util.function.Supplier;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraft.world.item.*;
 import nonamecrackers2.endertrigon.EnderTrigonMod;
 import nonamecrackers2.endertrigon.common.item.DragonHornItem;
 import nonamecrackers2.endertrigon.common.tag.EnderTrigonInstrumentTags;
-
-public class EnderTrigonItems
-{
-	public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(EnderTrigonMod.MODID);
-	private static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, EnderTrigonMod.MODID);
-	
-	public static final DeferredItem<BlockItem> BABY_DRAGON_EGG = ITEMS.register("baby_dragon_egg", () -> new BlockItem(EnderTrigonBlocks.BABY_DRAGON_EGG.get(), new Item.Properties().rarity(Rarity.EPIC)));
-	public static final DeferredItem<DragonHornItem> DRAGON_HORN = ITEMS.register("dragon_horn", () -> new DragonHornItem(new Item.Properties().rarity(Rarity.RARE).stacksTo(1).fireResistant(), EnderTrigonInstrumentTags.DRAGON_HORN));
-	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB = CREATIVE_MODE_TABS.register("main", () -> CreativeModeTab.builder()
-			.title(Component.translatable("itemGroup." + EnderTrigonMod.MODID))
-			.withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
-			.icon(() -> DRAGON_HORN.get().getDefaultInstance())
-			.displayItems((parameters, output) -> {
-				output.accept(BABY_DRAGON_EGG);
-				output.accept(DRAGON_HORN);
-			})
-			.build());
-	
-	public static void register(IEventBus modBus)
-	{
-		ITEMS.register(modBus);
-		CREATIVE_MODE_TABS.register(modBus);
-	}
-	
-	public static void buildCreativeTabContents(BuildCreativeModeTabContentsEvent event)
-	{
-		if (event.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS))
-			event.accept(BABY_DRAGON_EGG);
-		else if (event.getTabKey().equals(CreativeModeTabs.TOOLS_AND_UTILITIES))
-			event.accept(DRAGON_HORN);
-	}
+public class EnderTrigonItems {
+    public static final Supplier<BlockItem> BABY_DRAGON_EGG = Registration.add(BuiltInRegistries.ITEM, EnderTrigonMod.id("baby_dragon_egg"), new BlockItem(EnderTrigonBlocks.BABY_DRAGON_EGG.get(), new Item.Properties().rarity(Rarity.EPIC)));
+    public static final Supplier<DragonHornItem> DRAGON_HORN = Registration.add(BuiltInRegistries.ITEM, EnderTrigonMod.id("dragon_horn"), new DragonHornItem(new Item.Properties().rarity(Rarity.RARE).stacksTo(1).fireResistant(), EnderTrigonInstrumentTags.DRAGON_HORN));
+    public static void register() {
+        Registration.add(BuiltInRegistries.CREATIVE_MODE_TAB, EnderTrigonMod.id("main"), FabricItemGroup.builder().title(Component.translatable("itemGroup." + EnderTrigonMod.MODID)).icon(() -> DRAGON_HORN.get().getDefaultInstance()).displayItems((parameters, output) -> { output.accept(BABY_DRAGON_EGG.get()); output.accept(DRAGON_HORN.get()); }).build());
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register(entries -> entries.accept(BABY_DRAGON_EGG.get()));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(entries -> entries.accept(DRAGON_HORN.get()));
+    }
 }

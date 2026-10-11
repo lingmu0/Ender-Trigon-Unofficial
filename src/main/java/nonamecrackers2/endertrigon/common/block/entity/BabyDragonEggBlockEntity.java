@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 1.20.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package nonamecrackers2.endertrigon.common.block.entity;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -67,14 +67,15 @@ public class BabyDragonEggBlockEntity extends BlockEntity
 				if (entity.timeTillSpawn == 0)
 				{
 					BabyEnderDragon dragon = EnderTrigonEntityTypes.BABY_ENDER_DRAGON.get().spawn(serverLevel, (ItemStack)null, (Player)null, pos, MobSpawnType.TRIGGERED, true, false);
+					if (dragon == null) { entity.timeTillSpawn = 20; return; }
 					dragon.playSound(SoundEvents.ENDER_DRAGON_GROWL, 3.0F, dragon.getVoicePitch());
 					if (entity.hatcher != null)
 					{
-						dragon.setTame(true, true);
+						dragon.setTame(true);
 						dragon.setOwnerUUID(entity.hatcher);
 						if (((ServerLevel)level).getEntity(entity.hatcher) instanceof ServerPlayer player)
 							CriteriaTriggers.TAME_ANIMAL.trigger(player, dragon);
-						dragon.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(EnderTrigonMod.id("tamed_health"), 16.0D, AttributeModifier.Operation.ADD_VALUE));
+						dragon.getAttribute(Attributes.MAX_HEALTH).addPermanentModifier(new AttributeModifier(UUID.fromString("82123d31-6864-4d1e-9e5b-8c19d209a104"), "tamed_health", 16.0D, AttributeModifier.Operation.ADDITION));
 					}
 					serverLevel.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, 10, 0.5F, 0.5F, 0.5F, 0.05D);
 					level.playSound(null, pos, EnderTrigonSoundEvents.BABY_DRAGON_EGG_BREAKS.get(), SoundSource.BLOCKS, 5.0F, 1.0F);
@@ -86,18 +87,18 @@ public class BabyDragonEggBlockEntity extends BlockEntity
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider)
+	protected void saveAdditional(CompoundTag tag)
 	{
-		super.saveAdditional(tag, provider);
+		super.saveAdditional(tag);
 		tag.putInt("TimeTillSpawn", this.timeTillSpawn);
 		if (this.hatcher != null)
 			tag.putUUID("Hatcher", this.hatcher);
 	}
 	
 	@Override
-	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider)
+	public void load(CompoundTag tag)
 	{
-		super.loadAdditional(tag, provider);
+		super.load(tag);
 		this.timeTillSpawn = tag.getInt("TimeTillSpawn");
 		if (tag.hasUUID("Hatcher"))
 			this.hatcher = tag.getUUID("Hatcher");
@@ -106,10 +107,12 @@ public class BabyDragonEggBlockEntity extends BlockEntity
 	public void setTimeTillSpawn(int time)
 	{
 		this.timeTillSpawn = time;
+        setChanged();
 	}
 	
 	public void setHatcher(@Nullable UUID uuid)
 	{
 		this.hatcher = uuid;
+        setChanged();
 	}
 }

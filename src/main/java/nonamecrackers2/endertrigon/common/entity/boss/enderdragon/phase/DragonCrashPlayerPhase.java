@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 1.20.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -18,7 +19,7 @@ package nonamecrackers2.endertrigon.common.entity.boss.enderdragon.phase;
 
 import java.util.Optional;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -34,7 +35,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.EventHooks;
+import net.minecraft.world.level.GameRules;
 import nonamecrackers2.endertrigon.common.config.EnderTrigonConfig;
 import nonamecrackers2.endertrigon.common.init.EnderTrigonDragonPhases;
 import nonamecrackers2.endertrigon.common.util.EnderDragonHelper;
@@ -65,7 +66,7 @@ public class DragonCrashPlayerPhase extends AbstractDragonPhaseInstance implemen
 			EnderDragonHelper.moveUnrestrictedY(this.dragon, this.target.position().add(0.0D, -2.0D, 0.0D), this.getTurnSpeed(), 0.5F, 0.9D);
 			
 			this.timeSinceCharge++;
-			if (this.dragon.inWall && EventHooks.canEntityGrief(this.dragon.level(), this.dragon))
+			if (this.dragon.inWall && this.dragon.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING))
 			{
 				Explosion explosion = this.dragon.level().explode(this.dragon, this.dragon.getX(), this.dragon.getY(), this.dragon.getZ(), 7.0F, Level.ExplosionInteraction.NONE);
 				if (EnderTrigonConfig.COMMON.crashPhaseDestroysBlocks.get())

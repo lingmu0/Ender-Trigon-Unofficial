@@ -1,6 +1,6 @@
 package nonamecrackers2.endertrigon.common.init;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;

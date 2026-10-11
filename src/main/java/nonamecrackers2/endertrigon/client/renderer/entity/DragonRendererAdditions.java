@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 1.20.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import nonamecrackers2.endertrigon.common.util.EnderDragonExtension;
 
 public class DragonRendererAdditions
 {
-	public static void renderExtra(PoseStack stack, VertexConsumer consumer, int packedLight, int overlayTexture, int color, EnderDragon dragon, float partialTicks, ModelPart[] heads, ModelPart[] jaws, ModelPart[] necks)
+	public static void renderExtra(PoseStack stack, VertexConsumer consumer, int packedLight, int overlayTexture, float red, float green, float blue, float alpha, EnderDragon dragon, float partialTicks, ModelPart[] heads, ModelPart[] jaws, ModelPart[] necks)
 	{
 		stack.pushPose();
 		float f = Mth.lerp(partialTicks, dragon.oFlapTime, dragon.flapTime);
@@ -67,7 +67,7 @@ public class DragonRendererAdditions
 				y += Mth.sin(necks[j].xRot) * 10.0F;
 				z -= Mth.cos(necks[j].yRot) * Mth.cos(necks[j].xRot) * 10.0F;
 				x -= Mth.sin(necks[j].yRot) * Mth.cos(necks[j].xRot) * 10.0F;
-				necks[j].render(stack, consumer, packedLight, overlayTexture, color);
+				necks[j].render(stack, consumer, packedLight, overlayTexture, red, green, blue, alpha);
 			}
 			
 			heads[j].y = y;
@@ -77,7 +77,7 @@ public class DragonRendererAdditions
 			heads[j].yRot = (float) (Mth.wrapDegrees(adouble2[0] - adouble[0]) * ((float) Math.PI / 180F));
 			heads[j].xRot = (float) (Mth.wrapDegrees((double) dragon.getHeadPartYOffset(6, adouble, adouble2)) * ((float) Math.PI / 180F) * 1.5F * 5.0F);
 			heads[j].zRot = (float) (-Mth.wrapDegrees(adouble2[0] - (double) f7) * ((float) Math.PI / 180F));
-			heads[j].render(stack, consumer, packedLight, overlayTexture, color);
+			heads[j].render(stack, consumer, packedLight, overlayTexture, red, green, blue, alpha);
 		}
 
 		stack.popPose();

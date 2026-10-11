@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 1.20.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -79,11 +79,6 @@ public class DragonFlameRenderer extends EntityRenderer<DragonFlame>
 
 	private static void vertex(VertexConsumer consumer, PoseStack.Pose pose, int light, float x, float y, float u, float v)
 	{
-		consumer.addVertex(pose, x, y, 0.0F)
-				.setColor(-1)
-				.setUv(u, v)
-				.setOverlay(OverlayTexture.NO_OVERLAY)
-				.setLight(light)
-				.setNormal(pose, 0.0F, 1.0F, 0.0F);
-	}
+        consumer.vertex(pose.pose(), x, y, 0.0F).color(255,255,255,255).uv(u,v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(pose.normal(),0,1,0).endVertex();
+    }
 }

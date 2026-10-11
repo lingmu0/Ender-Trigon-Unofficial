@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 1.20.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -47,9 +47,9 @@ public abstract class MixinEnderDragonModel
 	}
 
 	@Inject(method = "renderToBuffer", at = @At("TAIL"))
-	public void renderToBufferTail(PoseStack stack, VertexConsumer consumer, int packedLight, int overlayTexture, int color, CallbackInfo ci)
+	public void renderToBufferTail(PoseStack stack, VertexConsumer consumer, int packedLight, int overlayTexture, float red, float green, float blue, float alpha, CallbackInfo ci)
 	{
-		DragonRendererAdditions.renderExtra(stack, consumer, packedLight, overlayTexture, color, this.getEntity(), this.getPartialTicks(), this.heads, this.jaws, this.necks);
+		DragonRendererAdditions.renderExtra(stack, consumer, packedLight, overlayTexture, red, green, blue, alpha, this.getEntity(), this.getPartialTicks(), this.heads, this.jaws, this.necks);
 	}
 
 	@Accessor

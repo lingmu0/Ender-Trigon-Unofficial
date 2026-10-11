@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 1.20.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -49,7 +50,7 @@ public class BabyEnderDragonRenderer extends MobRenderer<BabyEnderDragon, BabyEn
 	}
 	
 	@Override
-	protected void setupRotations(BabyEnderDragon dragon, PoseStack stack, float bob, float yBodyRot, float partialTicks, float scale)
+	protected void setupRotations(BabyEnderDragon dragon, PoseStack stack, float bob, float yBodyRot, float partialTicks)
 	{
 		float f = (float)dragon.getLatency(7, partialTicks)[0];
 		float f1 = (float)(dragon.getLatency(5, partialTicks)[1] - dragon.getLatency(10, partialTicks)[1]);

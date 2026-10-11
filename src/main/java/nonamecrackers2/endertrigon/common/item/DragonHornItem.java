@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 1.20.1 Fabric unofficial port.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -74,8 +74,8 @@ public class DragonHornItem extends InstrumentItem
 							int y = dragon.getRandom().nextIntBetweenInclusive(-1, 1);
 							int z = dragon.getRandom().nextIntBetweenInclusive(-3, 3);
 							BlockPos pos = player.blockPosition().offset(x, y, z);
-							PathType pathType = WalkNodeEvaluator.getPathTypeStatic(dragon, pos.mutable());
-							if (pathType == PathType.WALKABLE)
+							BlockPathTypes pathType = WalkNodeEvaluator.getBlockPathTypeStatic(dragon.level(), pos.mutable());
+							if (pathType == BlockPathTypes.WALKABLE)
 							{
 								if (level.noCollision(dragon, dragon.getLocalBoundsForPose(Pose.SITTING).move(pos)))
 								{
@@ -96,7 +96,7 @@ public class DragonHornItem extends InstrumentItem
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> text, TooltipFlag flag)
+	public void appendHoverText(ItemStack stack, Level context, List<Component> text, TooltipFlag flag)
 	{
 		text.add(Component.translatable("item.ender_trigon_unofficial.dragon_horn.use").withStyle(ChatFormatting.GRAY));
 	}
