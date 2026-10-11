@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,26 +16,18 @@
 */
 
 package nonamecrackers2.endertrigon.client.init;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import nonamecrackers2.endertrigon.client.renderer.entity.BabyEnderDragonRenderer;
-import nonamecrackers2.endertrigon.client.renderer.entity.DragonFlameRenderer;
+import nonamecrackers2.endertrigon.EnderTrigonMod;
+import nonamecrackers2.endertrigon.client.renderer.entity.*;
 import nonamecrackers2.endertrigon.client.renderer.entity.model.BabyEnderDragonModel;
-import nonamecrackers2.endertrigon.common.init.EnderTrigonEntityTypes;
-
-public class EnderTrigonRenderers
-{
-	@SubscribeEvent
-	public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event)
-	{
-		event.registerEntityRenderer(EnderTrigonEntityTypes.DRAGON_FLAME.get(), DragonFlameRenderer::new);
-		event.registerEntityRenderer(EnderTrigonEntityTypes.BABY_ENDER_DRAGON.get(), BabyEnderDragonRenderer::new);
-	}
-	
-	@SubscribeEvent
-	public static void registerModelLayers(EntityRenderersEvent.RegisterLayerDefinitions event)
-	{
-		event.registerLayerDefinition(BabyEnderDragonModel.LAYER_LOCATION, BabyEnderDragonModel::createBodyLayer);
-	}
+import nonamecrackers2.endertrigon.common.init.*;
+public class EnderTrigonRenderers implements ClientModInitializer {
+    @Override public void onInitializeClient() {
+        EntityRendererRegistry.register(EnderTrigonEntityTypes.DRAGON_FLAME.get(), DragonFlameRenderer::new);
+        EntityRendererRegistry.register(EnderTrigonEntityTypes.BABY_ENDER_DRAGON.get(), BabyEnderDragonRenderer::new);
+        ModelLayerRegistry.registerModelLayer(BabyEnderDragonModel.LAYER_LOCATION, BabyEnderDragonModel::createBodyLayer);
+    }
 }

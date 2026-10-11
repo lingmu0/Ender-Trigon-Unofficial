@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,45 +16,23 @@
 */
 
 package nonamecrackers2.endertrigon.mixin;
-
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-
+import net.minecraft.client.model.monster.dragon.EnderDragonModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.entity.EnderDragonRenderer;
-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.client.renderer.entity.state.EnderDragonRenderState;
 import nonamecrackers2.endertrigon.client.renderer.entity.DragonRendererAdditions;
-
-@Mixin(EnderDragonRenderer.DragonModel.class)
-public abstract class MixinEnderDragonModel
-{
-	private ModelPart[] heads;
-	private ModelPart[] necks;
-	private ModelPart[] jaws;
-
-	@Inject(method = "<init>", at = @At("TAIL"))
-	public void constructorTail(ModelPart root, CallbackInfo ci)
-	{
-		this.heads = new ModelPart[] { root.getChild("head1"), root.getChild("head2") };
-		this.jaws = new ModelPart[] { this.heads[0].getChild("jaw"), this.heads[1].getChild("jaw") };
-		this.necks = new ModelPart[] { root.getChild("neck1"), root.getChild("neck2") };
-	}
-
-	@Inject(method = "renderToBuffer", at = @At("TAIL"))
-	public void renderToBufferTail(PoseStack stack, VertexConsumer consumer, int packedLight, int overlayTexture, int color, CallbackInfo ci)
-	{
-		DragonRendererAdditions.renderExtra(stack, consumer, packedLight, overlayTexture, color, this.getEntity(), this.getPartialTicks(), this.heads, this.jaws, this.necks);
-	}
-
-	@Accessor
-	public abstract EnderDragon getEntity();
-
-	@Accessor("a")
-	public abstract float getPartialTicks();
+@Mixin(EnderDragonModel.class)
+public class MixinEnderDragonModel {
+    @Unique private ModelPart[] endertrigon$heads;
+    @Unique private ModelPart[][] endertrigon$necks;
+    @Inject(method="<init>", at=@At("TAIL"))
+    private void init(ModelPart root, CallbackInfo ci) {
+        endertrigon$heads=new ModelPart[2]; endertrigon$necks=new ModelPart[2][5];
+        for(int j=0;j<2;j++){ endertrigon$heads[j]=root.getChild("trigon_head"+j); for(int i=0;i<5;i++) endertrigon$necks[j][i]=root.getChild("trigon_neck"+j+"_"+i); }
+    }
+    @Inject(method="setupAnim(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;)V", at=@At("TAIL"))
+    private void animate(EnderDragonRenderState state, CallbackInfo ci) { DragonRendererAdditions.animate(state,endertrigon$heads,endertrigon$necks); }
 }

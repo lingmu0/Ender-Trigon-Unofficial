@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,7 +17,7 @@
 
 package nonamecrackers2.endertrigon.mixin;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,7 +58,7 @@ public abstract class MixinDragonStrafePlayerPhase extends AbstractDragonPhaseIn
 	{
 		if (this.getAttackTarget() != null)
 		{
-			int i = this.dragon.getDragonFight() == null ? 0 : this.dragon.getDragonFight().getCrystalsAlive();
+			int i = this.dragon.getDragonFight() == null ? 0 : this.dragon.getDragonFight().aliveCrystals();
 			if (i == 0 || this.dragon.getRandom().nextInt(i) == 0)
 			{
 				this.dragon.getPhaseManager().setPhase(EnderTrigonDragonPhases.getPhase("ChargeUp").orElseThrow(() -> new NullPointerException("ChargeUp dragon phase should be registered!")));

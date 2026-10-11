@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,74 +16,32 @@
 */
 
 package nonamecrackers2.endertrigon.client.renderer.entity;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.entity.*;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import nonamecrackers2.endertrigon.EnderTrigonMod;
 import nonamecrackers2.endertrigon.common.entity.DragonFlame;
-
-public class DragonFlameRenderer extends EntityRenderer<DragonFlame>
-{
-	private static final ResourceLocation TEXTURE_LOCATION = EnderTrigonMod.id("textures/entity/dragon_flame.png");
-	private static final RenderType CUTOUT = RenderType.entityCutoutNoCull(TEXTURE_LOCATION);
-	private static final RenderType EMISSIVE = RenderType.eyes(TEXTURE_LOCATION);
-	
-	public DragonFlameRenderer(EntityRendererProvider.Context context)
-	{
-		super(context);
-	}
-
-	@Override
-	protected int getBlockLightLevel(DragonFlame entity, BlockPos pos)
-	{
-		return 15;
-	}
-	
-	@Override
-	public void render(DragonFlame entity, float p_114486_, float p_114487_, PoseStack stack, MultiBufferSource buffer, int p_114490_)
-	{
-		stack.pushPose();
-		stack.scale(2.0F, 2.0F, 2.0F);
-		stack.mulPose(this.entityRenderDispatcher.cameraOrientation());
-		stack.mulPose(Axis.YP.rotationDegrees(180.0F));
-		VertexConsumer consumer = buffer.getBuffer(CUTOUT);
-		render(consumer, stack, p_114490_);
-		consumer = buffer.getBuffer(EMISSIVE);
-		render(consumer, stack, p_114490_);
-		stack.popPose();
-		super.render(entity, p_114486_, p_114487_, stack, buffer, p_114490_);
-	}
-	
-	@Override
-	public ResourceLocation getTextureLocation(DragonFlame entity)
-	{
-		return TEXTURE_LOCATION;
-	}
-	
-	private static void render(VertexConsumer consumer, PoseStack stack, int i)
-	{
-		vertex(consumer, stack.last(), i, -0.5F, -0.25F, 0.0F, 1.0F);
-		vertex(consumer, stack.last(), i, 0.5F, -0.25F, 1.0F, 1.0F);
-		vertex(consumer, stack.last(), i, 0.5F, 0.75F, 1.0F, 0.0F);
-		vertex(consumer, stack.last(), i, -0.5F, 0.75F, 0.0F, 0.0F);
-	}
-
-	private static void vertex(VertexConsumer consumer, PoseStack.Pose pose, int light, float x, float y, float u, float v)
-	{
-		consumer.addVertex(pose, x, y, 0.0F)
-				.setColor(-1)
-				.setUv(u, v)
-				.setOverlay(OverlayTexture.NO_OVERLAY)
-				.setLight(light)
-				.setNormal(pose, 0.0F, 1.0F, 0.0F);
-	}
+public class DragonFlameRenderer extends EntityRenderer<DragonFlame, EntityRenderState> {
+    public DragonFlameRenderer(EntityRendererProvider.Context context) { super(context); }
+    @Override public EntityRenderState createRenderState() { return new EntityRenderState(); }
+    @Override protected int getBlockLightLevel(DragonFlame entity, BlockPos pos) { return 15; }
+    @Override public void submit(EntityRenderState state, PoseStack stack, SubmitNodeCollector collector, CameraRenderState camera) {
+        stack.pushPose(); stack.scale(2,2,2); stack.mulPose(camera.orientation); stack.mulPose(Axis.YP.rotationDegrees(180));
+        var texture = EnderTrigonMod.id("textures/entity/dragon_flame.png");
+        collector.submitCustomGeometry(stack, RenderTypes.entityCutout(texture), (pose, consumer) -> quad(consumer, pose, state.lightCoords));
+        collector.submitCustomGeometry(stack, RenderTypes.eyes(texture), (pose, consumer) -> quad(consumer, pose, state.lightCoords));
+        stack.popPose(); super.submit(state, stack, collector, camera);
+    }
+    private static void quad(VertexConsumer c, PoseStack.Pose p, int light) {
+        vertex(c,p,light,-0.5F,-0.25F,0,1); vertex(c,p,light,0.5F,-0.25F,1,1); vertex(c,p,light,0.5F,0.75F,1,0); vertex(c,p,light,-0.5F,0.75F,0,0);
+    }
+    private static void vertex(VertexConsumer c, PoseStack.Pose p, int light, float x, float y, float u, float v) {
+        c.addVertex(p,x,y,0).setColor(-1).setUv(u,v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(p,0,1,0);
+    }
 }

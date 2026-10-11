@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import net.minecraft.world.entity.boss.enderdragon.phases.AbstractDragonPhaseIns
 import net.minecraft.world.entity.boss.enderdragon.phases.DragonHoldingPatternPhase;
 import net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.DragonFireball;
+import net.minecraft.world.entity.projectile.hurtingprojectile.DragonFireball;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.EndPodiumFeature;
 import net.minecraft.world.phys.Vec3;
@@ -50,13 +50,13 @@ public abstract class MixinDragonHoldingPatternPhase extends AbstractDragonPhase
 		method = "doServerTick",
 		at = @At("TAIL")
 	)
-	public void doServerTickTail(CallbackInfo ci)
+	public void doServerTickTail(net.minecraft.server.level.ServerLevel level, CallbackInfo ci)
 	{
-		int i = this.dragon.getDragonFight() == null ? 0 : this.dragon.getDragonFight().getCrystalsAlive();
+		int i = this.dragon.getDragonFight() == null ? 0 : this.dragon.getDragonFight().aliveCrystals();
 		if (this.dragon.tickCount % 20 == 0 && this.dragon.getRandom().nextInt(i + 3) == 0)
 		{
 			BlockPos pos = this.dragon.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.getLocation(BlockPos.ZERO));
-			Player player = this.dragon.level().getNearestPlayer(getTargeting(), this.dragon, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
+			Player player = ((net.minecraft.server.level.ServerLevel)this.dragon.level()).getNearestPlayer(getTargeting(), this.dragon, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
 			if (player != null && this.dragon.hasLineOfSight(player))
 			{
 				Vec3 view = this.dragon.getViewVector(1.0F);
@@ -69,22 +69,22 @@ public abstract class MixinDragonHoldingPatternPhase extends AbstractDragonPhase
 				if (!this.dragon.isSilent())
 					this.dragon.level().levelEvent((Player)null, 1017, this.dragon.blockPosition(), 0);
 				DragonFireball fireball = new DragonFireball(this.dragon.level(), this.dragon, new Vec3(xDelta, yDelta, zDelta));
-				fireball.moveTo(x, y, z, 0.0F, 0.0F);
+				fireball.snapTo(x, y, z, 0.0F, 0.0F);
 				this.dragon.level().addFreshEntity(fireball);
-				this.findNewTarget();
+				this.findNewTarget((net.minecraft.server.level.ServerLevel)this.dragon.level());
 			}
 		}
 	}
 	
 	@Shadow
-	public abstract void findNewTarget();
+	public abstract void findNewTarget(net.minecraft.server.level.ServerLevel level);
 
 	@Inject(
 		method = "findNewTarget",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/boss/enderdragon/phases/EnderDragonPhaseManager;setPhase(Lnet/minecraft/world/entity/boss/enderdragon/phases/EnderDragonPhase;)V"),
 		cancellable = true
 	)
-	public void findNewTargetInvoke(CallbackInfo ci)
+	public void findNewTargetInvoke(net.minecraft.server.level.ServerLevel level, CallbackInfo ci)
 	{
 		ci.cancel();
 	}
@@ -93,11 +93,11 @@ public abstract class MixinDragonHoldingPatternPhase extends AbstractDragonPhase
 		method = "findNewTarget",
 		at = @At("HEAD")
 	)
-	public void findNewTargetHead(CallbackInfo ci)
+	public void findNewTargetHead(net.minecraft.server.level.ServerLevel level, CallbackInfo ci)
 	{
 		DragonStrafeExtension strafeExtension = (DragonStrafeExtension)this.dragon.getPhaseManager().getPhase(EnderDragonPhase.STRAFE_PLAYER);
 		int times = strafeExtension.getTimesStrafing();
-		int crystals = this.dragon.getDragonFight() == null ? 0 : this.dragon.getDragonFight().getCrystalsAlive();
+		int crystals = this.dragon.getDragonFight() == null ? 0 : this.dragon.getDragonFight().aliveCrystals();
 		if (times >= EnderTrigonConfig.COMMON.attacksUntilPerch.get() + crystals)
 		{
 			this.dragon.getPhaseManager().setPhase(EnderTrigonConfig.COMMON.skipLandingPhase.get() ? EnderDragonPhase.LANDING : EnderDragonPhase.LANDING_APPROACH);

@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,70 +16,30 @@
 */
 
 package nonamecrackers2.endertrigon.client.renderer.entity;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
-
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.entity.state.EnderDragonRenderState;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import nonamecrackers2.endertrigon.common.entity.boss.enderdragon.EnderDragonHead;
-import nonamecrackers2.endertrigon.common.util.EnderDragonExtension;
-
-public class DragonRendererAdditions
-{
-	public static void renderExtra(PoseStack stack, VertexConsumer consumer, int packedLight, int overlayTexture, int color, EnderDragon dragon, float partialTicks, ModelPart[] heads, ModelPart[] jaws, ModelPart[] necks)
-	{
-		stack.pushPose();
-		float f = Mth.lerp(partialTicks, dragon.oFlapTime, dragon.flapTime);
-		float f1 = (float) (Math.sin((double) (f * ((float) Math.PI * 2F) - 1.0F)) + 1.0D);
-		f1 = (f1 * f1 + f1 * 2.0F) * 0.05F;
-		stack.translate(0.0D, (double) (f1 - 2.0F), -3.0D);
-		stack.mulPose(Axis.XP.rotationDegrees(f1 * 2.0F));
-		float f8 = f * ((float) Math.PI * 2F);
-
-		EnderDragonHead[] otherHeads = ((EnderDragonExtension)dragon).getOtherHeads();
-		
-		for (int j = 0; j < otherHeads.length; j++)
-		{
-			int latencyOffset = otherHeads[j].getLatencyOffset();
-			
-			double[] adouble = dragon.getLatencyPos(6 + latencyOffset, partialTicks);
-			float f6 = (float) Mth.wrapDegrees(dragon.getLatencyPos(5 + latencyOffset, partialTicks)[0] - dragon.getLatencyPos(10, partialTicks)[0]);
-			float f7 = (float) Mth.wrapDegrees(dragon.getLatencyPos(5 + latencyOffset, partialTicks)[0] + (double) (f6 / 2.0F));
-			
-			jaws[j].xRot = (float)(Math.sin((double)(f * ((float)Math.PI * 2F)) + 400.0D * (j + 1)) + 1.0D) * 0.2F;
-			float x = 0.0F;
-			float y = 20.0F;
-			float z = -12.0F;
-
-			for (int i = 0; i < 5; i++)
-			{
-				double[] adouble1 = dragon.getLatencyPos(5 + latencyOffset - i, partialTicks);
-				float f9 = (float) Math.cos((double) ((float) i * 0.45F + f8)) * 0.15F;
-				necks[j].yRot = (float) (Mth.wrapDegrees(adouble1[0] - adouble[0] + otherHeads[j].getRenderYRotOffset()) * ((float) Math.PI / 180F) * 1.5F);
-				necks[j].xRot = f9 + (dragon.getHeadPartYOffset(i, adouble, adouble1) + otherHeads[j].getRenderXRotOffset()) * ((float) Math.PI / 180F) * 1.5F * 3.0F;
-				necks[j].zRot = (float) (-Mth.wrapDegrees(adouble1[0] - (double) f7) * ((float) Math.PI / 180F) * 1.5F);
-				necks[j].y = y;
-				necks[j].z = z;
-				necks[j].x = x;
-				y += Mth.sin(necks[j].xRot) * 10.0F;
-				z -= Mth.cos(necks[j].yRot) * Mth.cos(necks[j].xRot) * 10.0F;
-				x -= Mth.sin(necks[j].yRot) * Mth.cos(necks[j].xRot) * 10.0F;
-				necks[j].render(stack, consumer, packedLight, overlayTexture, color);
-			}
-			
-			heads[j].y = y;
-			heads[j].z = z;
-			heads[j].x = x;
-			double[] adouble2 = dragon.getLatencyPos(0 + latencyOffset , partialTicks);
-			heads[j].yRot = (float) (Mth.wrapDegrees(adouble2[0] - adouble[0]) * ((float) Math.PI / 180F));
-			heads[j].xRot = (float) (Mth.wrapDegrees((double) dragon.getHeadPartYOffset(6, adouble, adouble2)) * ((float) Math.PI / 180F) * 1.5F * 5.0F);
-			heads[j].zRot = (float) (-Mth.wrapDegrees(adouble2[0] - (double) f7) * ((float) Math.PI / 180F));
-			heads[j].render(stack, consumer, packedLight, overlayTexture, color);
-		}
-
-		stack.popPose();
-	}
+public class DragonRendererAdditions {
+    public static void animate(EnderDragonRenderState state, ModelPart[] heads, ModelPart[][] necks) {
+        float flap=state.flapTime*(float)(Math.PI*2), rad=(float)(Math.PI/180);
+        for(int j=0;j<2;j++) {
+            int offset=j+1; float yOffset=j==0?-30:30;
+            var start=state.getHistoricalPos(6+offset);
+            float rot=Mth.wrapDegrees(state.getHistoricalPos(5+offset).yRot()+(Mth.wrapDegrees(state.getHistoricalPos(5+offset).yRot()-state.getHistoricalPos(10).yRot()))/2);
+            float x=0,y=20,z=-12;
+            for(int i=0;i<5;i++) {
+                var point=state.getHistoricalPos(5+offset-i); var n=necks[j][i];
+                n.yRot=Mth.wrapDegrees(point.yRot()-start.yRot()+yOffset)*rad*1.5F;
+                n.xRot=Mth.cos(i*0.45F+flap)*0.15F+(state.getHeadPartYOffset(i,start,point)+5)*rad*1.5F*3;
+                n.zRot=-Mth.wrapDegrees(point.yRot()-rot)*rad*1.5F;
+                n.setPos(x,y,z);
+                y+=Mth.sin(n.xRot)*10; z-=Mth.cos(n.yRot)*Mth.cos(n.xRot)*10; x-=Mth.sin(n.yRot)*Mth.cos(n.xRot)*10;
+            }
+            var head=heads[j]; var point=state.getHistoricalPos(offset); head.setPos(x,y,z);
+            head.yRot=Mth.wrapDegrees(point.yRot()-start.yRot())*rad;
+            head.xRot=Mth.wrapDegrees(state.getHeadPartYOffset(6,start,point))*rad*1.5F*5;
+            head.zRot=-Mth.wrapDegrees(point.yRot()-rot)*rad;
+            head.getChild("jaw").xRot=(Mth.sin(flap+400*(j+1))+1)*0.2F;
+        }
+    }
 }

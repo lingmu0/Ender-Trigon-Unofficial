@@ -1,6 +1,6 @@
 package nonamecrackers2.endertrigon.common.entity.goal;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -59,7 +59,7 @@ public class BabyEnderDragonFollowOwnerGoal extends Goal
 	public static int getCeilingStartingAt(Level level, int height, int x, int z)
 	{
 		BlockPos pos = new BlockPos(x, height, z);
-		while (pos.getY() < level.getMaxBuildHeight() && level.getBlockState(pos).isAir())
+		while (pos.getY() < level.getMaxY() && level.getBlockState(pos).isAir())
 			pos = pos.above();
 		return pos.getY();
 	}

@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ package nonamecrackers2.endertrigon.common.entity;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -42,7 +44,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.NeutralMob;
 import net.minecraft.world.entity.Pose;
@@ -60,13 +62,13 @@ import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.FlyingAnimal;
-import net.minecraft.world.entity.animal.ShoulderRidingEntity;
-import net.minecraft.world.entity.monster.AbstractSkeleton;
+import net.minecraft.world.entity.animal.parrot.ShoulderRidingEntity;
+import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Phantom;
-import net.minecraft.world.entity.monster.Pillager;
-import net.minecraft.world.entity.monster.Spider;
-import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.illager.Pillager;
+import net.minecraft.world.entity.monster.spider.Spider;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -85,7 +87,7 @@ import nonamecrackers2.endertrigon.common.init.EnderTrigonEntityTypes;
 public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob, FlyingAnimal
 {
 	private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(20, 39);
-	private static final EntityDataAccessor<Integer> REMAINING_ANGER_TIME = SynchedEntityData.defineId(BabyEnderDragon.class, EntityDataSerializers.INT);
+	private static final EntityDataAccessor<Long> REMAINING_ANGER_TIME = SynchedEntityData.defineId(BabyEnderDragon.class, EntityDataSerializers.LONG);
 	private static final EntityDimensions SITTING = EntityDimensions.fixed(0.9F, 0.85F);
 	public float flapTime;
 	public float oFlapTime;
@@ -94,7 +96,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	private Vec3 moveTarget = Vec3.ZERO;
 	private BlockPos anchor = BlockPos.ZERO;
 	private BabyEnderDragon.Phase phase = BabyEnderDragon.Phase.CIRCLE;
-	private @Nullable UUID persistentAngerTarget;
+	private @Nullable EntityReference<LivingEntity> persistentAngerTarget;
 	private final BabyEnderDragon.TargetGoal<Monster> monsterTargeting = new BabyEnderDragon.TargetGoal<>(this, Monster.class, l -> {
 		return l instanceof Zombie || l instanceof Spider || l instanceof AbstractSkeleton || l instanceof Pillager || l instanceof Phantom;
 	});
@@ -112,7 +114,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 		FlyingPathNavigation navigation = new FlyingPathNavigation(this, level);
 		navigation.setCanOpenDoors(false);
 		navigation.setCanFloat(true);
-		navigation.setCanPassDoors(true);
+		navigation.setCanOpenDoors(false);
 		return navigation;
 	}
 	
@@ -158,54 +160,37 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	protected void defineSynchedData(SynchedEntityData.Builder builder)
 	{
 		super.defineSynchedData(builder);
-		builder.define(REMAINING_ANGER_TIME, 0);
+		builder.define(REMAINING_ANGER_TIME, -1L);
 	}
-	
+
+    @Override public void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        output.store("Anchor", BlockPos.CODEC, getAnchor());
+        output.putInt("Phase", phase.ordinal());
+        output.store("MoveTarget", Vec3.CODEC, moveTarget);
+        addPersistentAngerSaveData(output);
+    }
+    @Override public void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        setAnchor(input.read("Anchor", BlockPos.CODEC).orElse(BlockPos.ZERO));
+        int ordinal = input.getIntOr("Phase", 0);
+        phase = Phase.values()[ordinal >= 0 && ordinal < Phase.values().length ? ordinal : 0];
+        moveTarget = input.read("MoveTarget", Vec3.CODEC).orElse(Vec3.ZERO);
+        readPersistentAngerSaveData(level(), input);
+    }
+    public UUID getOwnerUUID() { var ref = getOwnerReference(); return ref == null ? null : ref.getUUID(); }
+    public void setOwnerUUID(UUID owner) { setOwnerReference(EntityReference.of(owner)); }
+
 	@Override
-	public void addAdditionalSaveData(CompoundTag tag)
-	{
-		super.addAdditionalSaveData(tag);
-		tag.put("Anchor", NbtUtils.writeBlockPos(this.getAnchor()));
-		tag.putInt("Phase", this.phase.ordinal());
-		if (this.moveTarget != null)
-		{
-			CompoundTag moveTargetTag = new CompoundTag();
-			moveTargetTag.putDouble("x", this.moveTarget.x);
-			moveTargetTag.putDouble("y", this.moveTarget.y);
-			moveTargetTag.putDouble("z", this.moveTarget.z);
-			tag.put("MoveTarget", moveTargetTag);
-		}
-	}
-	
-	@Override
-	public void readAdditionalSaveData(CompoundTag tag)
-	{
-		super.readAdditionalSaveData(tag);
-		this.setAnchor(NbtUtils.readBlockPos(tag, "Anchor").orElse(BlockPos.ZERO));
-		if (tag.contains("Phase", 3))
-		{
-			int ordinal = tag.getInt("Phase");
-			if (ordinal > 0 && ordinal < BabyEnderDragon.Phase.values().length)
-				this.phase = BabyEnderDragon.Phase.values()[ordinal];
-		}
-		if (tag.contains("MoveTarget", 10))
-		{
-			CompoundTag moveTargetTag = tag.getCompound("MoveTarget");
-			Vec3 vec = new Vec3(moveTargetTag.getDouble("x"), moveTargetTag.getDouble("y"), moveTargetTag.getDouble("z"));
-			this.moveTarget = vec;
-		}
-	}
-	
-	@Override
-	public boolean hurt(DamageSource source, float damage)
+	public boolean hurtServer(ServerLevel level, DamageSource source, float damage)
 	{
 		if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY))
-			return super.hurt(source, damage);
+			return super.hurtServer(level, source, damage);
 		
 		if (this.isTame())
-			return super.hurt(source, damage * 0.25F);
+			return super.hurtServer(level, source, damage * 0.25F);
 		else
-			return super.hurt(source, damage);
+			return super.hurtServer(level, source, damage);
 	}
 	
 	@Override
@@ -221,7 +206,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	@Override
 	public void travel(Vec3 delta)
 	{
-		if (this.isControlledByLocalInstance())
+		if (this.isLocalInstanceAuthoritative())
 		{
 			if (this.isInWater())
 			{
@@ -240,12 +225,12 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 				BlockPos ground = this.getBlockPosBelowThatAffectsMyMovement();
 				float f = 0.91F;
 				if (this.onGround())
-					f = this.level().getBlockState(ground).getFriction(this.level(), ground, this) * 0.91F;
+					f = this.level().getBlockState(ground).getBlock().getFriction() * 0.91F;
 
 				float f1 = 0.16277137F / (f * f * f);
 				f = 0.91F;
 				if (this.onGround())
-					f = this.level().getBlockState(ground).getFriction(this.level(), ground, this) * 0.91F;
+					f = this.level().getBlockState(ground).getBlock().getFriction() * 0.91F;
 
 				this.moveRelative(this.onGround() ? 0.1F * f1 : 0.02F, delta);
 				this.move(MoverType.SELF, this.getDeltaMovement());
@@ -274,7 +259,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	@Override
 	public void onFlap()
 	{
-		if (this.level().isClientSide && !this.isSilent())
+		if (this.level().isClientSide() && !this.isSilent())
 			this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ENDER_DRAGON_FLAP, this.getSoundSource(), 5.0F, 1.7F + this.random.nextFloat() * 0.3F, false);
 	}
 	
@@ -420,7 +405,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 		}
 		else
 		{
-			this.moveTo((double) x + 0.5D, (double) y, (double) z + 0.5D, this.getYRot(), this.getXRot());
+			this.snapTo((double) x + 0.5D, (double) y, (double) z + 0.5D, this.getYRot(), this.getXRot());
 			return true;
 		}
 	}
@@ -493,25 +478,25 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	}
 	
 	@Override
-	public int getRemainingPersistentAngerTime()
+	public long getPersistentAngerEndTime()
 	{
 		return this.entityData.get(REMAINING_ANGER_TIME);
 	}
 
 	@Override
-	public void setRemainingPersistentAngerTime(int time)
+	public void setPersistentAngerEndTime(long time)
 	{
 		this.entityData.set(REMAINING_ANGER_TIME, time);
 	}
 
 	@Override
-	public @Nullable UUID getPersistentAngerTarget()
+	public @Nullable EntityReference<LivingEntity> getPersistentAngerTarget()
 	{
 		return this.persistentAngerTarget;
 	}
 
 	@Override
-	public void setPersistentAngerTarget(@Nullable UUID id)
+	public void setPersistentAngerTarget(@Nullable EntityReference<LivingEntity> id)
 	{
 		this.persistentAngerTarget = id;
 	}
@@ -519,7 +504,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	@Override
 	public void startPersistentAngerTimer()
 	{
-		this.setRemainingPersistentAngerTime(PERSISTENT_ANGER_TIME.sample(this.random));
+		this.setTimeToRemainAngry(PERSISTENT_ANGER_TIME.sample(this.random));
 	}
 
 	@Override
@@ -553,7 +538,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	}
 	
 	@Override
-	protected Vec3 getLeashOffset()
+	public Vec3 getLeashOffset()
 	{
 		return new Vec3(0.0F, this.getBbHeight() / 2.0F, 0.0F);
 	}
@@ -565,13 +550,13 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	}
 	
 	@Override
-	public boolean canAttackType(EntityType<?> type)
+	public boolean canAttack(LivingEntity target)
 	{
-		return type != EnderTrigonEntityTypes.BABY_ENDER_DRAGON.get() && super.canAttackType(type);
+		return target.getType() != EnderTrigonEntityTypes.BABY_ENDER_DRAGON.get() && super.canAttack(target);
 	}
 	
 	@Override
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType type, SpawnGroupData groupData)
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason type, SpawnGroupData groupData)
 	{
 		this.setAnchor(this.blockPosition().above(5));
 		return super.finalizeSpawn(level, difficulty, type, groupData);
@@ -674,7 +659,7 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 	{
 		public TargetGoal(BabyEnderDragon dragon, Class<T> clazz, Predicate<LivingEntity> predicate)
 		{
-			super(dragon, clazz, false, predicate);
+			super(dragon, clazz, false, (target, level) -> predicate.test(target));
 		}
 		
 		@Override

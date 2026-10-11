@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package nonamecrackers2.endertrigon.common.entity;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -28,15 +28,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.entity.PartEntity;
-import net.neoforged.neoforge.event.EventHooks;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
+import net.minecraft.world.level.gamerules.GameRules;
 import nonamecrackers2.endertrigon.common.init.EnderTrigonDamageTypes;
 import nonamecrackers2.endertrigon.common.init.EnderTrigonEntityTypes;
 
@@ -56,7 +56,7 @@ public class DragonFlame extends AbstractHurtingProjectile
 	public void tick()
 	{
 		super.tick();
-		if (!this.level().isClientSide && this.tickCount > 40)
+		if (!this.level().isClientSide() && this.tickCount > 40)
 			this.discard();
 	}
 	
@@ -74,7 +74,7 @@ public class DragonFlame extends AbstractHurtingProjectile
 				DamageSource source = flame(this, owner);
 				//TODO: Test
 				hit.igniteForSeconds(8);
-				if (!hit.hurt(source, 8.0F))
+				if (!hit.hurtServer((ServerLevel)this.level(), source, 8.0F))
 					hit.setRemainingFireTicks(i);
 				else if (owner instanceof LivingEntity && this.level() instanceof ServerLevel serverLevel)
 					EnchantmentHelper.doPostAttackEffects(serverLevel, hit, source);
@@ -96,7 +96,7 @@ public class DragonFlame extends AbstractHurtingProjectile
 		if (!this.level().isClientSide())
 		{
 			Entity owner = this.getOwner();
-			if (!(owner instanceof Mob) || EventHooks.canEntityGrief(this.level(), owner))
+			if (!(owner instanceof Mob) || ((net.minecraft.server.level.ServerLevel)this.level()).getGameRules().get(GameRules.MOB_GRIEFING))
 			{
 				BlockPos pos = result.getBlockPos().relative(result.getDirection());
 				if (this.level().isEmptyBlock(pos))
@@ -112,7 +112,7 @@ public class DragonFlame extends AbstractHurtingProjectile
 		UUID owner = null;
 		if (this.getOwner() != null)
 			owner = this.getOwner().getUUID();
-		return super.ownedBy(entity) || (entity instanceof PartEntity<?> part && part.getParent().getUUID().equals(owner));
+		return super.ownedBy(entity) || (entity instanceof EnderDragonPart part && part.parentMob.getUUID().equals(owner));
 	}
 	
 	public static DamageSource flame(DragonFlame flame, @Nullable Entity hit)
@@ -127,7 +127,7 @@ public class DragonFlame extends AbstractHurtingProjectile
 	}
 	
 	@Override
-	public boolean hurt(DamageSource source, float amount)
+	public boolean hurtServer(ServerLevel level, DamageSource source, float amount)
 	{
 		return false;
 	}

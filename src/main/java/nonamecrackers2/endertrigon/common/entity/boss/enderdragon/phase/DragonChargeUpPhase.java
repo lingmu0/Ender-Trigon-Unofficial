@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 
 package nonamecrackers2.endertrigon.common.entity.boss.enderdragon.phase;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -59,10 +59,10 @@ public class DragonChargeUpPhase extends AbstractDragonSittingPhase
 	}
 	
 	@Override
-	public void doServerTick()
+	public void doServerTick(net.minecraft.server.level.ServerLevel level)
 	{
 		BlockPos pos = this.dragon.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.getLocation(BlockPos.ZERO));
-		Player player = this.dragon.level().getNearestPlayer(CHARGE_TARGETING, this.dragon, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
+		Player player = ((net.minecraft.server.level.ServerLevel)this.dragon.level()).getNearestPlayer(CHARGE_TARGETING, this.dragon, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
 		this.chargeUpTicks++;
 		if (this.chargeUpTicks > CHARGE_UP_TIME)
 		{

@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,26 +16,19 @@
 */
 
 package nonamecrackers2.endertrigon.mixin;
-
 import org.spongepowered.asm.mixin.Mixin;
-
-import net.minecraft.world.entity.boss.EnderDragonPart;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Final;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.level.Explosion;
-import net.neoforged.neoforge.entity.PartEntity;
+import net.minecraft.world.level.Level;
 import nonamecrackers2.endertrigon.common.init.EnderTrigonDragonPhases;
-
 @Mixin(EnderDragonPart.class)
-public abstract class MixinEnderDragonPart extends PartEntity<EnderDragon>
-{
-	private MixinEnderDragonPart(EnderDragon parent)
-	{
-		super(parent);
-	}
-	
-	@Override
-	public boolean ignoreExplosion(Explosion explosion)
-	{
-		return EnderTrigonDragonPhases.isPhase("CrashPlayer", this.getParent().getPhaseManager().getCurrentPhase().getPhase());
-	}
+public abstract class MixinEnderDragonPart extends Entity {
+    @Shadow @Final public EnderDragon parentMob;
+    private MixinEnderDragonPart(EntityType<?> type, Level level) { super(type, level); }
+    @Override public boolean ignoreExplosion(Explosion explosion) { return EnderTrigonDragonPhases.isPhase("CrashPlayer", parentMob.getPhaseManager().getCurrentPhase().getPhase()); }
 }

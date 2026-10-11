@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -22,10 +23,10 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
-import net.minecraft.world.entity.projectile.DragonFireball;
+import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.hurtingprojectile.DragonFireball;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.entity.PartEntity;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
 
 @Mixin(DragonFireball.class)
 public abstract class MixinDragonFireball extends AbstractHurtingProjectile
@@ -41,6 +42,6 @@ public abstract class MixinDragonFireball extends AbstractHurtingProjectile
 		UUID owner = null;
 		if (this.getOwner() != null)
 			owner = this.getOwner().getUUID();
-		return super.ownedBy(entity) || (entity instanceof PartEntity<?> part && part.getParent().getUUID().equals(owner));
+		return super.ownedBy(entity) || (entity instanceof EnderDragonPart part && part.parentMob.getUUID().equals(owner));
 	}
 }

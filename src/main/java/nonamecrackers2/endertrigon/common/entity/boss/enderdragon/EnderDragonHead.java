@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,7 +18,7 @@
 package nonamecrackers2.endertrigon.common.entity.boss.enderdragon;
 
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.boss.EnderDragonPart;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import nonamecrackers2.endertrigon.mixin.IMixinEnderDragon;
 
@@ -48,7 +49,7 @@ public class EnderDragonHead
 	{
 		if (!this.dragon.isDeadOrDying() && !this.dragon.isNoAi())
 		{
-			float latency = (float) (this.dragon.getLatencyPos(5 + this.latencyOffset, 1.0F)[1] - this.dragon.getLatencyPos(10 + this.latencyOffset, 1.0F)[1]) * 10.0F * ((float) Math.PI / 180F);
+			float latency = (float) (this.dragon.flightHistory.get(5 + this.latencyOffset).y() - this.dragon.flightHistory.get(10 + this.latencyOffset).y()) * 10.0F * ((float) Math.PI / 180F);
 			float cosLatency = Mth.cos(latency);
 			float sinLatency = Mth.sin(latency);
 			float sin = Mth.sin((this.dragon.getYRot() + this.yRotOffset) * ((float) Math.PI / 180F) - this.dragon.yRotA * 0.01F);

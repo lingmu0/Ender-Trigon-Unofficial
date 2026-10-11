@@ -1,0 +1,8 @@
+{
+  "sound_event": "ender_trigon_unofficial:dragon_horn",
+  "use_duration": 3.0,
+  "range": 32.0,
+  "description": {
+    "translate": "instrument.ender_trigon_unofficial.dragon_horn"
+  }
+}

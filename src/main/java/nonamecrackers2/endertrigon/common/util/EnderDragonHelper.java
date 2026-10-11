@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -35,11 +36,11 @@ public class EnderDragonHelper
 	public static void doDragonFlame(EnderDragon dragon)
 	{
 		BlockPos pos = dragon.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.getLocation(BlockPos.ZERO));
-		Player player = dragon.level().getNearestPlayer(TargetingConditions.forCombat(), dragon, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
+		Player player = ((net.minecraft.server.level.ServerLevel)dragon.level()).getNearestPlayer(TargetingConditions.forCombat(), dragon, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
 		if (player != null && dragon.hasLineOfSight(player))
 		{
 			float angle = (float)(Mth.atan2(player.getX() - dragon.getX(), player.getZ() - dragon.getZ()) * (180.0D / Math.PI));
-			float angleDiff = (Mth.wrapDegrees((float)-dragon.getLatencyPos(7, 1.0F)[0]) - angle + 180 + 360) % 360 - 180;
+			float angleDiff = (Mth.wrapDegrees((float)-dragon.flightHistory.get(7).yRot()) - angle + 180 + 360) % 360 - 180;
 			if (!(angleDiff <= 80 && angleDiff >= -80))
 			{
 				EnderDragonExtension mixinDragon = (EnderDragonExtension)dragon;
@@ -54,7 +55,7 @@ public class EnderDragonHelper
 				if (!dragon.isSilent() && dragon.tickCount % 4 == 0)
 					dragon.level().playSound(null, head.head.blockPosition(), SoundEvents.ENDER_DRAGON_SHOOT, SoundSource.HOSTILE, 10.0F, dragon.getRandom().nextFloat());
 				DragonFlame flame = new DragonFlame(dragon.level(), dragon, xDelta, yDelta, zDelta);
-				flame.moveTo(x, y, z, 0.0F, 0.0F);
+				flame.snapTo(x, y, z, 0.0F, 0.0F);
 				dragon.level().addFreshEntity(flame);
 			}
 		}
