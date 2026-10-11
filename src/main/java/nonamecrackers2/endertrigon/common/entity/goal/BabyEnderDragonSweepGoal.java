@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -83,7 +84,7 @@ public class BabyEnderDragonSweepGoal extends BabyEnderDragonMoveTargetGoal
 			this.dragon.setMoveTarget(new Vec3(target.getX(), target.getY(0.5D), target.getZ()));
 			if (this.dragon.getBoundingBox().inflate(0.2D).intersects(target.getBoundingBox()))
 			{
-				this.dragon.doHurtTarget(target);
+				this.dragon.doHurtTarget((net.minecraft.server.level.ServerLevel)this.dragon.level(), target);
 				if (this.dragon.getRandom().nextInt(20) == 0 || this.attackTime > 80)
 					this.dragon.setPhase(BabyEnderDragon.Phase.CIRCLE);
 				this.dragon.playSound(SoundEvents.ENDER_DRAGON_GROWL, 2.0F, this.dragon.getVoicePitch());

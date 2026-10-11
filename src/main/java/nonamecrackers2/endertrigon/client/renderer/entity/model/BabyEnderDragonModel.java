@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package nonamecrackers2.endertrigon.client.renderer.entity.model;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -38,7 +38,7 @@ import net.minecraft.util.Mth;
 import nonamecrackers2.endertrigon.EnderTrigonMod;
 import nonamecrackers2.endertrigon.common.entity.BabyEnderDragon;
 
-public class BabyEnderDragonModel extends EntityModel<BabyEnderDragon>
+public class BabyEnderDragonModel extends EntityModel<nonamecrackers2.endertrigon.client.renderer.entity.BabyDragonRenderState>
 {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(EnderTrigonMod.id("baby_ender_dragon"), "main");
 	private final ModelPart head;
@@ -61,11 +61,12 @@ public class BabyEnderDragonModel extends EntityModel<BabyEnderDragon>
 	private final ModelPart backLeftLeg;
 	private final ModelPart leftLegAppendage;
 	private final ModelPart leftLegAppendage2;
-	private float partialTicks;
-	private @Nullable BabyEnderDragon dragon;
+
+
 
 	public BabyEnderDragonModel(ModelPart root) 
 	{
+        super(root);
 		this.body = root.getChild("body");
 		this.neck = this.body.getChild("neck");
 		this.neckPieces = getPieces(this.neck, "neckPiece", 1);
@@ -218,16 +219,9 @@ public class BabyEnderDragonModel extends EntityModel<BabyEnderDragon>
 	}
 	
 	@Override
-	public void prepareMobModel(BabyEnderDragon entity, float p_102615_, float p_102616_, float partialTicks)
+	public void setupAnim(nonamecrackers2.endertrigon.client.renderer.entity.BabyDragonRenderState entity)
 	{
-		this.partialTicks = partialTicks;
-		this.dragon = entity;
-	}
-
-	@Override
-	public void setupAnim(BabyEnderDragon entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) 
-	{
-		if (entity.onGround())
+		if (entity.onGround)
 		{
 			this.body.xRot = -25.0F * ((float)Math.PI / 180.0F);
 			this.backRightLeg.xRot = -140.0F * ((float)Math.PI / 180.0F);
@@ -252,12 +246,12 @@ public class BabyEnderDragonModel extends EntityModel<BabyEnderDragon>
 			this.frontLeftArm.xRot = 0.0F;
 		}
 		
-		float ticks = (float)entity.tickCount + this.partialTicks;
-		float flap = Mth.lerp(this.partialTicks, this.dragon.oFlapTime, this.dragon.flapTime);
+		float ticks = entity.ageInTicks;
+		float flap = entity.flap;
 		this.jaw.xRot = (float)(Math.sin(flap * ((float)Math.PI * 2.0F) + ticks * 0.1F) + 1.0D) * 0.2F;
-		double[] baseLatency = entity.getLatency(6, this.partialTicks);
+		double[] baseLatency = entity.getLatency(6);
 		float flapPi = flap * ((float)Math.PI * 2.0F);
-		float roll = (float) Mth.wrapDegrees(entity.getLatency(5, this.partialTicks)[0] + ((Mth.wrapDegrees(entity.getLatency(5, this.partialTicks)[0] - entity.getLatency(10, this.partialTicks)[0])) / 2.0F));
+		float roll = (float) Mth.wrapDegrees(entity.getLatency(5)[0] + ((Mth.wrapDegrees(entity.getLatency(5)[0] - entity.getLatency(10)[0])) / 2.0F));
 		
 		for (int i = 0; i < this.neckPieces.length; i++)
 		{
@@ -272,9 +266,9 @@ public class BabyEnderDragonModel extends EntityModel<BabyEnderDragon>
 				prevZ = prev.zRot;
 			}
 			ModelPart piece = this.neckPieces[i];
-			double[] latency = entity.getLatency(this.neckPieces.length - i, this.partialTicks);
+			double[] latency = entity.getLatency(this.neckPieces.length - i);
 			float xOffset = Mth.cos(i * 0.45F + flapPi) * 0.15F;
-			if (entity.onGround())
+			if (entity.onGround)
 				xOffset += (814.0F / (1984.0F + Math.pow(0.006F, (float)-i)) - 0.2F) * -20.0F + -Mth.sin(ticks * 0.15F) * 0.1F;
 			piece.yRot = (float) Mth.wrapDegrees(latency[0] - baseLatency[0]) * ((float)Math.PI / 180.0F);
 			piece.xRot = (xOffset + (float)baseLatency[1] - (float)latency[1]) * 0.25F;
@@ -284,12 +278,12 @@ public class BabyEnderDragonModel extends EntityModel<BabyEnderDragon>
 			piece.zRot -= prevZ;
 		}
 		
-		double[] headLatency = entity.getLatency(0, this.partialTicks);
+		double[] headLatency = entity.getLatency(0);
 		this.head.yRot = (float) Mth.wrapDegrees(headLatency[0] - baseLatency[0]) * ((float)Math.PI / 180.0F);
-		this.head.xRot = entity.onGround() ? 20.0F * ((float)Math.PI / 180.0F) : 0.0F;
+		this.head.xRot = entity.onGround ? 20.0F * ((float)Math.PI / 180.0F) : 0.0F;
 		this.head.zRot = (float) -Mth.wrapDegrees(headLatency[0] - (double)roll) * ((float)Math.PI / 180.0F);
 		
-		if (!entity.onGround())
+		if (!entity.onGround)
 		{
 			this.leftWing.xRot = 0.125F - Mth.cos(flapPi) * 0.2F;
 			this.leftWing.yRot = -0.25F;
@@ -322,8 +316,8 @@ public class BabyEnderDragonModel extends EntityModel<BabyEnderDragon>
 				prevZ = prev.zRot;
 			}
 			ModelPart piece = this.tailPieces[i];
-			double[] latency = entity.getLatency(12 + i, this.partialTicks);
-			float xOffset = Mth.cos(i * 0.45F + flapPi) * 0.05F + (entity.onGround() ? -0.2F : 0.0F);
+			double[] latency = entity.getLatency(12 + i);
+			float xOffset = Mth.cos(i * 0.45F + flapPi) * 0.05F + (entity.onGround ? -0.2F : 0.0F);
 			piece.yRot = (float) (Mth.wrapDegrees(latency[0] - baseLatency[0]) * 0.25F) * ((float)Math.PI / 180.0F);
 			piece.xRot = -(xOffset + (float)(baseLatency[1] - (float)latency[1]) * ((float)Math.PI / 180F) * 2.5F);
 			piece.zRot = (float) Mth.wrapDegrees(latency[0] - (double)roll) * ((float)Math.PI / 180.0F) * 0.2F;
@@ -333,9 +327,4 @@ public class BabyEnderDragonModel extends EntityModel<BabyEnderDragon>
 		}
 	}
 
-	@Override
-	public void renderToBuffer(PoseStack stack, VertexConsumer consumer, int packedLight, int packedOverlay, int color)
-	{
-		this.body.render(stack, consumer, packedLight, packedOverlay, color);
-	}
 }

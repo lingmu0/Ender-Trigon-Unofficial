@@ -27,7 +27,7 @@ displayName = "${mod_name}" #mandatory
 # A file name (in the root of the mod JAR) containing a logo for display
 #logoFile="ender_trigon_unofficial.png" #optional
 # A text field displayed in the mod UI
-credits = "Original mod by nonamecrackers2; unofficial 1.21.1 port by lingmu"
+credits = "Original mod by nonamecrackers2; unofficial port by lingmu"
 # A text field displayed in the mod UI
 authors = "${mod_authors}" #optional
 
@@ -77,3 +77,9 @@ side = "BOTH"
 # stop your mod loading on the server for example.
 #[features."${mod_id}"]
 #openGLVersion="[3.2,)"
+
+[[dependencies."${mod_id}"]]
+modId = "endertrigon"
+type = "incompatible"
+versionRange = "[0,)"
+reason = "Both mods modify the Ender Dragon encounter."

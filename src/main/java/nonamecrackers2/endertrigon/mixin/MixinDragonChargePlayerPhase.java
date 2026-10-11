@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,7 +17,7 @@
 
 package nonamecrackers2.endertrigon.mixin;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,7 +40,7 @@ public abstract class MixinDragonChargePlayerPhase extends AbstractDragonPhaseIn
 	}
 
 	@Overwrite
-	public void doServerTick()
+	public void doServerTick(net.minecraft.server.level.ServerLevel level)
 	{
 		if (this.getTargetLocation() == null)
 		{

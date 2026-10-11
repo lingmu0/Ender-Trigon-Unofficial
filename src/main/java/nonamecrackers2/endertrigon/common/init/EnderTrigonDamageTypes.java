@@ -1,6 +1,6 @@
 package nonamecrackers2.endertrigon.common.init;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
@@ -21,17 +21,17 @@ public class EnderTrigonDamageTypes
 	
 	public static DamageSource source(RegistryAccess access, ResourceKey<DamageType> key)
 	{
-		return new DamageSource(access.registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key));
+		return new DamageSource(access.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(key));
 	}
 	
 	public static DamageSource source(RegistryAccess access, ResourceKey<DamageType> key, @Nullable Entity entity)
 	{
-		return new DamageSource(access.registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key), entity);
+		return new DamageSource(access.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(key), entity);
 	}
 	
 	public static DamageSource source(RegistryAccess access, ResourceKey<DamageType> key, @Nullable Entity entity, @Nullable Entity entity2)
 	{
-		return new DamageSource(access.registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key), entity, entity2);
+		return new DamageSource(access.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(key), entity, entity2);
 	}
 	
 	public static DamageSource dragonFlame(Entity entity, Entity target)

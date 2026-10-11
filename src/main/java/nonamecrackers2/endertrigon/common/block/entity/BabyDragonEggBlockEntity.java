@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,19 +19,21 @@ package nonamecrackers2.endertrigon.common.block.entity;
 
 import java.util.UUID;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -59,14 +61,15 @@ public class BabyDragonEggBlockEntity extends BlockEntity
 	
 	public static void tick(Level level, BlockPos pos, BlockState state, BabyDragonEggBlockEntity entity)
 	{
-		if (!level.isClientSide && level instanceof ServerLevel serverLevel)
+		if (!level.isClientSide() && level instanceof ServerLevel serverLevel)
 		{
 			if (entity.timeTillSpawn > 0)
 			{
 				entity.timeTillSpawn--;
 				if (entity.timeTillSpawn == 0)
 				{
-					BabyEnderDragon dragon = EnderTrigonEntityTypes.BABY_ENDER_DRAGON.get().spawn(serverLevel, (ItemStack)null, (Player)null, pos, MobSpawnType.TRIGGERED, true, false);
+					BabyEnderDragon dragon = EnderTrigonEntityTypes.BABY_ENDER_DRAGON.get().spawn(serverLevel, pos, EntitySpawnReason.TRIGGERED);
+					if (dragon == null) return;
 					dragon.playSound(SoundEvents.ENDER_DRAGON_GROWL, 3.0F, dragon.getVoicePitch());
 					if (entity.hatcher != null)
 					{
@@ -85,31 +88,25 @@ public class BabyDragonEggBlockEntity extends BlockEntity
 		}
 	}
 	
-	@Override
-	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider)
-	{
-		super.saveAdditional(tag, provider);
-		tag.putInt("TimeTillSpawn", this.timeTillSpawn);
-		if (this.hatcher != null)
-			tag.putUUID("Hatcher", this.hatcher);
-	}
-	
-	@Override
-	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider)
-	{
-		super.loadAdditional(tag, provider);
-		this.timeTillSpawn = tag.getInt("TimeTillSpawn");
-		if (tag.hasUUID("Hatcher"))
-			this.hatcher = tag.getUUID("Hatcher");
-	}
-	
+    @Override protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("TimeTillSpawn", timeTillSpawn);
+        output.storeNullable("Hatcher", UUIDUtil.CODEC, hatcher);
+    }
+    @Override protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        timeTillSpawn = input.getIntOr("TimeTillSpawn", 0);
+        hatcher = input.read("Hatcher", UUIDUtil.CODEC).orElse(null);
+    }
 	public void setTimeTillSpawn(int time)
 	{
 		this.timeTillSpawn = time;
+        setChanged();
 	}
 	
 	public void setHatcher(@Nullable UUID uuid)
 	{
 		this.hatcher = uuid;
+        setChanged();
 	}
 }

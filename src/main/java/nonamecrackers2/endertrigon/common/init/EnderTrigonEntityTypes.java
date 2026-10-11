@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -37,7 +38,7 @@ public class EnderTrigonEntityTypes
 	
 	private static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(String id, EntityType.Builder<T> builder)
 	{
-		return ENTITY_TYPES.register(id, () -> builder.build(EnderTrigonMod.id(id).toString()));
+		return ENTITY_TYPES.register(id, () -> builder.build(net.minecraft.resources.ResourceKey.create(Registries.ENTITY_TYPE, EnderTrigonMod.id(id))));
 	}
 	
 	public static void register(IEventBus modBus)

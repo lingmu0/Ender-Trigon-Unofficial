@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'idea'
-    id 'net.neoforged.moddev' version '2.0.143'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
 version = mod_version
@@ -13,19 +13,17 @@ repositories {
 }
 
 base {
-    archivesName = mod_id
+    archivesName = "${mod_id}-${minecraft_version}-neoforge"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+java.withSourcesJar()
 
 neoForge {
     // Specify the version of NeoForge to use.
     version = project.neo_version
 
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
+
 
     // This line is optional. Access Transformers are automatically detected
     // accessTransformers.add('src/main/resources/META-INF/accesstransformer.cfg')
@@ -55,7 +53,7 @@ neoForge {
         }
 
         data {
-            data()
+            serverData()
 
             // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
             // gameDirectory = project.file('run-data')
@@ -179,3 +177,23 @@ idea {
         downloadJavadoc = true
     }
 }
+
+// Verify injection points against Minecraft bytecode without starting a game.
+sourceSets {
+    audit {
+        java.srcDir 'tools'
+        compileClasspath += sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.compileClasspath
+    }
+}
+class AuditArguments implements CommandLineArgumentProvider {
+    @Classpath FileCollection targets
+    Iterable<String> asArguments() { targets.files.collect { it.absolutePath } }
+}
+tasks.register('verifyMixins', JavaExec) {
+    dependsOn classes, auditClasses
+    classpath = sourceSets.audit.runtimeClasspath
+    mainClass = 'MixinAudit'
+    argumentProviders.add(new AuditArguments(targets: sourceSets.main.output.classesDirs + sourceSets.main.compileClasspath))
+}
+tasks.named('check') { dependsOn 'verifyMixins' }

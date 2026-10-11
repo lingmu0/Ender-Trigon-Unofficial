@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -35,7 +37,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.boss.EnderDragonPart;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -54,7 +56,7 @@ public abstract class MixinEnderDragon extends Mob implements EnderDragonExtensi
 	{
 		return entity instanceof BabyEnderDragon;
 	};
-	@Shadow
+	@Shadow @Final @Mutable
 	private EnderDragonPart[] subEntities;
 	private EnderDragonHead[] otherHeads;
 	
@@ -82,7 +84,7 @@ public abstract class MixinEnderDragon extends Mob implements EnderDragonExtensi
 	}
 	
 	@Overwrite
-	private void hurt(List<Entity> entities)
+	private void hurt(ServerLevel level, List<Entity> entities)
 	{
 		for (Entity entity : entities)
 		{
@@ -91,7 +93,7 @@ public abstract class MixinEnderDragon extends Mob implements EnderDragonExtensi
 				if (!NON_KNOCKBACKABLE.test(entity) && !this.getSelf().getPassengers().contains(entity))
 				{
 					DamageSource source = this.damageSources().mobAttack(this);
-					entity.hurt(source, 10.0F);
+					entity.hurtServer((ServerLevel)this.level(), source, 10.0F);
 					if (this.level() instanceof ServerLevel serverLevel)
 						EnchantmentHelper.doPostAttackEffects(serverLevel, entity, source);
 				}
@@ -117,7 +119,7 @@ public abstract class MixinEnderDragon extends Mob implements EnderDragonExtensi
 				if (!self.getPhaseManager().getCurrentPhase().isSitting() && living.getLastHurtByMobTimestamp() < entity.tickCount - 2)
 				{
 					DamageSource source = this.damageSources().mobAttack(this);
-					entity.hurt(source, 5.0F);
+					entity.hurtServer((ServerLevel)this.level(), source, 5.0F);
 					EnchantmentHelper.doPostAttackEffects(level, entity, source);
 				}
 			}

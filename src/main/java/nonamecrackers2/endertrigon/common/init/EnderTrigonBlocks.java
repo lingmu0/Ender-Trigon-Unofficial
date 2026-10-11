@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -28,7 +29,7 @@ public class EnderTrigonBlocks
 {	
 	private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(EnderTrigonMod.MODID);
 	
-	public static final DeferredBlock<BabyDragonEgg> BABY_DRAGON_EGG = BLOCKS.register("baby_dragon_egg", () -> new BabyDragonEgg(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(3.0F, 9.0F).lightLevel((state) -> 1).noOcclusion()));
+	public static final DeferredBlock<BabyDragonEgg> BABY_DRAGON_EGG = BLOCKS.registerBlock("baby_dragon_egg", BabyDragonEgg::new, () -> BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(3.0F, 9.0F).lightLevel((state) -> 1).noOcclusion());
 	
 	public static void register(IEventBus modBus)
 	{

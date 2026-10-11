@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -38,7 +39,7 @@ public class BabyEnderDragonAttackStrategyGoal extends Goal
 	public boolean canUse()
 	{
 		LivingEntity target = this.dragon.getTarget();
-		return target != null && this.dragon.canAttack(target, TARGETING) && this.dragon.getPhase() != BabyEnderDragon.Phase.LAND;
+		return target != null && this.dragon.canAttack(target) && TARGETING.test((net.minecraft.server.level.ServerLevel)this.dragon.level(), this.dragon, target) && this.dragon.getPhase() != BabyEnderDragon.Phase.LAND;
 	}
 	
 	@Override

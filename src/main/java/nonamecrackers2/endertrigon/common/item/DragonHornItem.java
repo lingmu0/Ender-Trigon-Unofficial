@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
+
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Instrument;
@@ -44,14 +44,14 @@ public class DragonHornItem extends InstrumentItem
 {
 	public DragonHornItem(Item.Properties properties, TagKey<Instrument> instruments)
 	{
-		super(properties, instruments);
+		super(properties.component(net.minecraft.core.component.DataComponents.INSTRUMENT, new net.minecraft.world.item.component.InstrumentComponent(net.minecraft.core.Holder.direct(new Instrument(net.minecraft.core.Holder.direct(nonamecrackers2.endertrigon.common.init.EnderTrigonSoundEvents.DRAGON_HORN.get()), 3.0F, 32.0F, Component.translatable("instrument.ender_trigon_unofficial.dragon_horn"))))));
 	}
 	
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand)
+	public InteractionResult use(Level level, Player player, InteractionHand hand)
 	{
 		var result = super.use(level, player, hand);
-		if (!level.isClientSide() && result.getResult() == InteractionResult.CONSUME)
+		if (!level.isClientSide() && result == InteractionResult.CONSUME)
 		{
 			AABB box = player.getBoundingBox().inflate(32.0F);
 			var dragons = player.level().getEntitiesOfClass(BabyEnderDragon.class, box, d -> d.distanceTo(player) <= 32.0F);
@@ -96,8 +96,8 @@ public class DragonHornItem extends InstrumentItem
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> text, TooltipFlag flag)
+	public void appendHoverText(ItemStack stack, TooltipContext context, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> text, TooltipFlag flag)
 	{
-		text.add(Component.translatable("item.ender_trigon_unofficial.dragon_horn.use").withStyle(ChatFormatting.GRAY));
+		text.accept(Component.translatable("item.ender_trigon_unofficial.dragon_horn.use").withStyle(ChatFormatting.GRAY));
 	}
 }

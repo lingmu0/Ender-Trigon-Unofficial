@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -18,17 +18,17 @@
 
 package nonamecrackers2.endertrigon;
 
-import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.resources.ResourceLocation;
+
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import nonamecrackers2.endertrigon.client.init.EnderTrigonRenderers;
 import nonamecrackers2.endertrigon.common.config.EnderTrigonConfig;
-import nonamecrackers2.endertrigon.common.data.EnderTrigonDataEvents;
+
 import nonamecrackers2.endertrigon.common.init.EnderTrigonBlockEntityTypes;
 import nonamecrackers2.endertrigon.common.init.EnderTrigonBlocks;
 import nonamecrackers2.endertrigon.common.init.EnderTrigonDragonPhases;
@@ -51,11 +51,12 @@ public class EnderTrigonMod
 		EnderTrigonItems.register(modBus);
 		EnderTrigonInstruments.register(modBus);
 		modBus.addListener(this::commonSetup);
-		modBus.addListener(this::clientSetup);
+
 		modBus.addListener(EnderTrigonEntityTypes::registerAttributes);
 		modBus.addListener(EnderTrigonItems::buildCreativeTabContents);
-		modBus.addListener(EnderTrigonDataEvents::gatherData);
-		modBus.register(EnderTrigonRenderers.class);
+
+		if (net.neoforged.fml.loading.FMLEnvironment.getDist() == net.neoforged.api.distmarker.Dist.CLIENT)
+            modBus.register(EnderTrigonRenderers.class);
 		mod.registerConfig(ModConfig.Type.COMMON, EnderTrigonConfig.COMMON_SPEC);
 	}
 	
@@ -66,18 +67,8 @@ public class EnderTrigonMod
 		});
 	}
 	
-	public void clientSetup(FMLClientSetupEvent event)
+	public static Identifier id(String path)
 	{
-		event.enqueueWork(() ->
-		{
-			ItemProperties.register(EnderTrigonItems.DRAGON_HORN.get(), id("tooting"), (item, level, entity, i) -> {
-		         return entity != null && entity.isUsingItem() && entity.getUseItem() == item ? 1.0F : 0.0F;
-		    });
-		});
-	}
-	
-	public static ResourceLocation id(String path)
-	{
-		return ResourceLocation.fromNamespaceAndPath(MODID, path);
+		return Identifier.fromNamespaceAndPath(MODID, path);
 	}
 }

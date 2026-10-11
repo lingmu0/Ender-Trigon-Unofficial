@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -113,9 +113,4 @@ public class BabyDragonEgg extends DragonEggBlock implements EntityBlock
 		return (BlockEntityTicker<T>)ticker;
 	}
 	
-	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> text, TooltipFlag flag)
-	{
-		text.add(Component.translatable("block.ender_trigon_unofficial.baby_dragon_egg.use").withStyle(ChatFormatting.GRAY));
-	}
 }

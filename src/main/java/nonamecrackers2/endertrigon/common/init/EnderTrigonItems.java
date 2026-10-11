@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 26.1.2 NeoForge unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -38,8 +38,8 @@ public class EnderTrigonItems
 	public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(EnderTrigonMod.MODID);
 	private static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, EnderTrigonMod.MODID);
 	
-	public static final DeferredItem<BlockItem> BABY_DRAGON_EGG = ITEMS.register("baby_dragon_egg", () -> new BlockItem(EnderTrigonBlocks.BABY_DRAGON_EGG.get(), new Item.Properties().rarity(Rarity.EPIC)));
-	public static final DeferredItem<DragonHornItem> DRAGON_HORN = ITEMS.register("dragon_horn", () -> new DragonHornItem(new Item.Properties().rarity(Rarity.RARE).stacksTo(1).fireResistant(), EnderTrigonInstrumentTags.DRAGON_HORN));
+	public static final DeferredItem<BlockItem> BABY_DRAGON_EGG = ITEMS.registerItem("baby_dragon_egg", p -> new nonamecrackers2.endertrigon.common.item.BabyDragonEggItem(EnderTrigonBlocks.BABY_DRAGON_EGG.get(), p), () -> new Item.Properties().rarity(Rarity.EPIC));
+	public static final DeferredItem<DragonHornItem> DRAGON_HORN = ITEMS.registerItem("dragon_horn", p -> new DragonHornItem(p, EnderTrigonInstrumentTags.DRAGON_HORN), () -> new Item.Properties().rarity(Rarity.RARE).stacksTo(1).fireResistant());
 	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB = CREATIVE_MODE_TABS.register("main", () -> CreativeModeTab.builder()
 			.title(Component.translatable("itemGroup." + EnderTrigonMod.MODID))
 			.withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
