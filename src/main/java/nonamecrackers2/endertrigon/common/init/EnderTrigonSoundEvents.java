@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 1.21.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,29 +16,14 @@
 */
 
 package nonamecrackers2.endertrigon.common.init;
-
-import net.minecraft.core.registries.Registries;
+import java.util.function.Supplier;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
 import nonamecrackers2.endertrigon.EnderTrigonMod;
-
-public class EnderTrigonSoundEvents
-{
-	private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(Registries.SOUND_EVENT, EnderTrigonMod.MODID);
-	
-	public static final DeferredHolder<SoundEvent, SoundEvent> BABY_DRAGON_EGG_BREAKS = create("baby_dragon_egg_breaks");
-	public static final DeferredHolder<SoundEvent, SoundEvent> ENDER_DRAGON_LAYS_EGG = create("dragon_lays_egg");
-	public static final DeferredHolder<SoundEvent, SoundEvent> DRAGON_HORN = create("dragon_horn");
-	
-	public static void register(IEventBus modBus)
-	{
-		SOUND_EVENTS.register(modBus);
-	}
-	
-	private static DeferredHolder<SoundEvent, SoundEvent> create(String id)
-	{
-		return SOUND_EVENTS.register(id, () -> SoundEvent.createVariableRangeEvent(EnderTrigonMod.id(id)));
-	}
+public class EnderTrigonSoundEvents {
+    public static final Supplier<SoundEvent> BABY_DRAGON_EGG_BREAKS = create("baby_dragon_egg_breaks");
+    public static final Supplier<SoundEvent> ENDER_DRAGON_LAYS_EGG = create("dragon_lays_egg");
+    public static final Supplier<SoundEvent> DRAGON_HORN = create("dragon_horn");
+    private static Supplier<SoundEvent> create(String id) { return Registration.add(BuiltInRegistries.SOUND_EVENT, EnderTrigonMod.id(id), SoundEvent.createVariableRangeEvent(EnderTrigonMod.id(id))); }
+    public static void register() {}
 }

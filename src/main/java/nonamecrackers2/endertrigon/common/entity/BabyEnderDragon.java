@@ -1,6 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
- * Modified 2026 by lingmu for the Minecraft 1.21.1 unofficial port.
+ * Modified 2026 by lingmu for the Minecraft 1.21.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ package nonamecrackers2.endertrigon.common.entity;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -240,12 +240,12 @@ public class BabyEnderDragon extends ShoulderRidingEntity implements NeutralMob,
 				BlockPos ground = this.getBlockPosBelowThatAffectsMyMovement();
 				float f = 0.91F;
 				if (this.onGround())
-					f = this.level().getBlockState(ground).getFriction(this.level(), ground, this) * 0.91F;
+					f = this.level().getBlockState(ground).getBlock().getFriction() * 0.91F;
 
 				float f1 = 0.16277137F / (f * f * f);
 				f = 0.91F;
 				if (this.onGround())
-					f = this.level().getBlockState(ground).getFriction(this.level(), ground, this) * 0.91F;
+					f = this.level().getBlockState(ground).getBlock().getFriction() * 0.91F;
 
 				this.moveRelative(this.onGround() ? 0.1F * f1 : 0.02F, delta);
 				this.move(MoverType.SELF, this.getDeltaMovement());

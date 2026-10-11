@@ -1,5 +1,6 @@
 /*
  * Copyright 2022 nonamecrackers2
+ * Modified 2026 by lingmu for the Minecraft 1.21.1 Fabric unofficial port.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -15,23 +16,13 @@
 */
 
 package nonamecrackers2.endertrigon.common.init;
-
+import java.util.function.Supplier;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredRegister;
 import nonamecrackers2.endertrigon.EnderTrigonMod;
 import nonamecrackers2.endertrigon.common.block.BabyDragonEgg;
-
-public class EnderTrigonBlocks
-{	
-	private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(EnderTrigonMod.MODID);
-	
-	public static final DeferredBlock<BabyDragonEgg> BABY_DRAGON_EGG = BLOCKS.register("baby_dragon_egg", () -> new BabyDragonEgg(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(3.0F, 9.0F).lightLevel((state) -> 1).noOcclusion()));
-	
-	public static void register(IEventBus modBus)
-	{
-		BLOCKS.register(modBus);
-	}
+public class EnderTrigonBlocks {
+    public static final Supplier<BabyDragonEgg> BABY_DRAGON_EGG = Registration.add(BuiltInRegistries.BLOCK, EnderTrigonMod.id("baby_dragon_egg"), new BabyDragonEgg(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(3.0F, 9.0F).lightLevel(s -> 1).noOcclusion()));
+    public static void register() {}
 }

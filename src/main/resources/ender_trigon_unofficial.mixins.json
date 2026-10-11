@@ -1,22 +1,25 @@
 {
-	"required": true,
-	"package": "nonamecrackers2.endertrigon.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"MixinEnderDragon",
-		"IMixinEnderDragon",
-		"MixinDragonStrafePlayerPhase",
-		"MixinDragonChargePlayerPhase",
-		"MixinDragonFireball",
-		"MixinDragonHoldingPatternPhase",
-		"IMixinEnderDragonPhase",
-		"MixinPlayer",
-		"MixinEnderDragonPart",
-		"MixinEnderDragonPhaseManager"
-	],
-	"client": [
-		"MixinEnderDragonRenderer",
-		"MixinEnderDragonModel"
-	],
-	"minVersion": "0.8"
+  "required": true,
+  "package": "nonamecrackers2.endertrigon.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "MixinEnderDragon",
+    "IMixinEnderDragon",
+    "MixinDragonStrafePlayerPhase",
+    "MixinDragonChargePlayerPhase",
+    "MixinDragonFireball",
+    "MixinDragonHoldingPatternPhase",
+    "IMixinEnderDragonPhase",
+    "MixinPlayer",
+    "MixinEnderDragonPart",
+    "MixinEnderDragonPhaseManager"
+  ],
+  "client": [
+    "MixinEnderDragonRenderer",
+    "MixinEnderDragonModel"
+  ],
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

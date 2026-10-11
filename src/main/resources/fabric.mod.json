@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "ender_trigon_unofficial",
+  "version": "${version}",
+  "name": "Ender Trigon Unofficial",
+  "description": "An unofficial port of Ender Trigon that enhances the Ender Dragon fight.",
+  "authors": [
+    "nonamecrackers2",
+    "lingmu (unofficial port)"
+  ],
+  "license": "Apache-2.0",
+  "contact": {
+    "sources": "https://github.com/lingmu0/Ender-Trigon-Unofficial",
+    "issues": "https://github.com/lingmu0/Ender-Trigon-Unofficial/issues"
+  },
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "nonamecrackers2.endertrigon.EnderTrigonMod"
+    ],
+    "client": [
+      "nonamecrackers2.endertrigon.client.init.EnderTrigonRenderers"
+    ]
+  },
+  "mixins": [
+    "ender_trigon_unofficial.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.10",
+    "minecraft": "1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "breaks": {
+    "endertrigon": "*"
+  }
+}
