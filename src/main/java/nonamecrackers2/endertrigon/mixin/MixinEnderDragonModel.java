@@ -16,23 +16,52 @@
 */
 
 package nonamecrackers2.endertrigon.mixin;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.*;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import net.minecraft.client.model.monster.dragon.EnderDragonModel;
+
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.monster.dragon.EnderDragonModel;
 import net.minecraft.client.renderer.entity.state.EnderDragonRenderState;
 import nonamecrackers2.endertrigon.client.renderer.entity.DragonRendererAdditions;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 @Mixin(EnderDragonModel.class)
-public class MixinEnderDragonModel {
+public class MixinEnderDragonModel
+{
     @Unique private ModelPart[] endertrigon$heads;
     @Unique private ModelPart[][] endertrigon$necks;
-    @Inject(method="<init>", at=@At("TAIL"))
-    private void init(ModelPart root, CallbackInfo ci) {
-        endertrigon$heads=new ModelPart[2]; endertrigon$necks=new ModelPart[2][5];
-        for(int j=0;j<2;j++){ endertrigon$heads[j]=root.getChild("trigon_head"+j); for(int i=0;i<5;i++) endertrigon$necks[j][i]=root.getChild("trigon_neck"+j+"_"+i); }
+
+    @Inject(method = "<init>", at = @At("TAIL"))
+    private void endertrigon$findExtraParts(ModelPart root, CallbackInfo callback)
+    {
+        ModelPart[] heads = new ModelPart[2];
+        ModelPart[][] necks = new ModelPart[2][5];
+        for (int headIndex = 0; headIndex < heads.length; headIndex++)
+        {
+            String headName = "trigon_head" + headIndex;
+            if (!root.hasChild(headName))
+                return;
+            heads[headIndex] = root.getChild(headName);
+            if (!heads[headIndex].hasChild("jaw"))
+                return;
+            for (int segment = 0; segment < necks[headIndex].length; segment++)
+            {
+                String neckName = "trigon_neck" + headIndex + "_" + segment;
+                if (!root.hasChild(neckName))
+                    return;
+                necks[headIndex][segment] = root.getChild(neckName);
+            }
+        }
+        this.endertrigon$heads = heads;
+        this.endertrigon$necks = necks;
     }
-    @Inject(method="setupAnim(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;)V", at=@At("TAIL"))
-    private void animate(EnderDragonRenderState state, CallbackInfo ci) { DragonRendererAdditions.animate(state,endertrigon$heads,endertrigon$necks); }
+
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;)V", at = @At("TAIL"))
+    private void endertrigon$animateExtraHeads(EnderDragonRenderState state, CallbackInfo callback)
+    {
+        if (this.endertrigon$heads != null)
+            DragonRendererAdditions.animate(state, this.endertrigon$heads, this.endertrigon$necks);
+    }
 }

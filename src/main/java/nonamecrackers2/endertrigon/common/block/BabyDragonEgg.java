@@ -17,18 +17,16 @@
 
 package nonamecrackers2.endertrigon.common.block;
 
-import java.util.List;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DragonEggBlock;
@@ -38,11 +36,13 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import nonamecrackers2.endertrigon.common.block.entity.BabyDragonEggBlockEntity;
+import nonamecrackers2.endertrigon.common.init.EnderTrigonBlockEntityTypes;
 
 public class BabyDragonEgg extends DragonEggBlock implements EntityBlock
 {
@@ -80,33 +80,55 @@ public class BabyDragonEgg extends DragonEggBlock implements EntityBlock
 	@Override
 	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity entity, ItemStack stack)
 	{
-		if (entity instanceof Player player)
-		{
-			if (level.getBlockEntity(pos) instanceof BabyDragonEggBlockEntity blockEntity)
-			{
-				blockEntity.setTimeTillSpawn(30 + player.getRandom().nextInt(20));
-				blockEntity.setHatcher(player.getUUID());
-			}
-		}
+		if (level instanceof ServerLevel && entity instanceof Player player
+				&& level.getBlockEntity(pos) instanceof BabyDragonEggBlockEntity egg)
+			egg.beginHatching(level.getRandom(), player.getUUID());
 	}
-	
+
 	@Override
-	public void onLand(Level level, BlockPos pos, BlockState state, BlockState state1, FallingBlockEntity falling)
+	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit)
 	{
-		BlockEntity entity = level.getBlockEntity(pos);
-		if (entity instanceof BabyDragonEggBlockEntity eggEntity)
-		{
-			RandomSource random = RandomSource.create();
-			eggEntity.setTimeTillSpawn(30 + random.nextInt(20));
-		}
+		if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof BabyDragonEggBlockEntity egg)
+			egg.beginHatching(level.getRandom(), player.getUUID());
+		return InteractionResult.SUCCESS;
 	}
-	
+
+	@Override
+	public void attack(BlockState state, Level level, BlockPos pos, Player player)
+	{
+		// Baby dragon eggs can be mined without the vanilla dragon egg teleport.
+	}
+
+	@Override
+	public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random)
+	{
+		if (pos.getY() < level.getMinY() || !isFree(level.getBlockState(pos.below())))
+			return;
+
+		CompoundTag hatchData = null;
+		if (level.getBlockEntity(pos) instanceof BabyDragonEggBlockEntity egg)
+		{
+			egg.beginHatching(random, null);
+			hatchData = egg.saveWithoutMetadata(level.registryAccess());
+		}
+		FallingBlockEntity falling = FallingBlockEntity.fall(level, pos, state);
+		falling.blockData = hatchData;
+	}
+
+	@Override
+	public void onLand(Level level, BlockPos pos, BlockState state, BlockState replaced, FallingBlockEntity falling)
+	{
+		if (level instanceof ServerLevel && level.getBlockEntity(pos) instanceof BabyDragonEggBlockEntity egg)
+			egg.beginHatching(level.getRandom(), null);
+	}
+
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
 	{
-		return castTicker(BabyDragonEggBlockEntity::tick);
+		return level instanceof ServerLevel && type == EnderTrigonBlockEntityTypes.BABY_DRAGON_EGG.get()
+				? castTicker(BabyDragonEggBlockEntity::tick) : null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected static <T extends BlockEntity> BlockEntityTicker<T> castTicker(BlockEntityTicker<BabyDragonEggBlockEntity> ticker)
 	{
