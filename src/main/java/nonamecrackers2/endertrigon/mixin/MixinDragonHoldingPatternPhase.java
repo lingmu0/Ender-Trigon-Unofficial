@@ -52,6 +52,9 @@ public abstract class MixinDragonHoldingPatternPhase extends AbstractDragonPhase
 	)
 	public void doServerTickTail(CallbackInfo ci)
 	{
+		if (this.dragon.getPhaseManager().getCurrentPhase() != this)
+			return;
+
 		int i = this.dragon.getDragonFight() == null ? 0 : this.dragon.getDragonFight().getCrystalsAlive();
 		if (this.dragon.tickCount % 20 == 0 && this.dragon.getRandom().nextInt(i + 3) == 0)
 		{
@@ -91,7 +94,8 @@ public abstract class MixinDragonHoldingPatternPhase extends AbstractDragonPhase
 	
 	@Inject(
 		method = "findNewTarget",
-		at = @At("HEAD")
+		at = @At("HEAD"),
+		cancellable = true
 	)
 	public void findNewTargetHead(CallbackInfo ci)
 	{
@@ -102,6 +106,7 @@ public abstract class MixinDragonHoldingPatternPhase extends AbstractDragonPhase
 		{
 			this.dragon.getPhaseManager().setPhase(EnderTrigonConfig.COMMON.skipLandingPhase.get() ? EnderDragonPhase.LANDING : EnderDragonPhase.LANDING_APPROACH);
 			strafeExtension.setTimesStrafing(0);
+			ci.cancel();
 		}
 	}
 	

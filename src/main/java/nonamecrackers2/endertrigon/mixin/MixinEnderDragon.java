@@ -17,28 +17,27 @@
 
 package nonamecrackers2.endertrigon.mixin;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -50,11 +49,7 @@ import nonamecrackers2.endertrigon.common.util.EnderDragonExtension;
 @Mixin(EnderDragon.class)
 public abstract class MixinEnderDragon extends Mob implements EnderDragonExtension, Enemy
 {
-	private static final Predicate<Entity> NON_KNOCKBACKABLE = (entity) ->
-	{
-		return entity instanceof BabyEnderDragon;
-	};
-	@Shadow
+	@Shadow @Final @Mutable
 	private EnderDragonPart[] subEntities;
 	private EnderDragonHead[] otherHeads;
 	
@@ -81,47 +76,32 @@ public abstract class MixinEnderDragon extends Mob implements EnderDragonExtensi
 		this.subEntities = ArrayUtils.addAll(this.subEntities, entities);
 	}
 	
-	@Overwrite
-	private void hurt(List<Entity> entities)
+	// Keep the vanilla damage and push calls available to Ender Dragon Plus and other mods.
+	@ModifyVariable(method = "hurt(Ljava/util/List;)V", at = @At("HEAD"), argsOnly = true, require = 1)
+	private List<Entity> endertrigon$filterContactTargets(List<Entity> entities)
 	{
-		for (Entity entity : entities)
-		{
-			if (entity instanceof LivingEntity)
-			{
-				if (!NON_KNOCKBACKABLE.test(entity) && !this.getSelf().getPassengers().contains(entity))
-				{
-					DamageSource source = this.damageSources().mobAttack(this);
-					entity.hurt(source, 10.0F);
-					if (this.level() instanceof ServerLevel serverLevel)
-						EnchantmentHelper.doPostAttackEffects(serverLevel, entity, source);
-				}
-			}
-		}
+		return endertrigon$filterTargets(entities, this.getPassengers());
 	}
 	
-	@Overwrite
-	private void knockBack(ServerLevel level, List<Entity> entities)
+	@ModifyVariable(method = "knockBack(Lnet/minecraft/server/level/ServerLevel;Ljava/util/List;)V", at = @At("HEAD"), argsOnly = true, require = 1)
+	private List<Entity> endertrigon$filterKnockbackTargets(List<Entity> entities)
 	{
-		EnderDragon self = this.getSelf();
-		double d0 = (this.getBody().getBoundingBox().minX + this.getBody().getBoundingBox().maxX) / 2.0D;
-		double d1 = (this.getBody().getBoundingBox().minZ + this.getBody().getBoundingBox().maxZ) / 2.0D;
+		return endertrigon$filterTargets(entities, List.of());
+	}
 
+	@Unique
+	private static List<Entity> endertrigon$filterTargets(List<Entity> entities, List<Entity> passengers)
+	{
 		for (Entity entity : entities)
 		{
-			if (!NON_KNOCKBACKABLE.test(entity) && entity instanceof LivingEntity living)
+			if (entity instanceof BabyEnderDragon || passengers.contains(entity))
 			{
-				double d2 = entity.getX() - d0;
-				double d3 = entity.getZ() - d1;
-				double d4 = Math.max(d2 * d2 + d3 * d3, 0.1D);
-				entity.push(d2 / d4 * 4.0D, (double) 0.2F, d3 / d4 * 4.0D);
-				if (!self.getPhaseManager().getCurrentPhase().isSitting() && living.getLastHurtByMobTimestamp() < entity.tickCount - 2)
-				{
-					DamageSource source = this.damageSources().mobAttack(this);
-					entity.hurt(source, 5.0F);
-					EnchantmentHelper.doPostAttackEffects(level, entity, source);
-				}
+				List<Entity> targets = new ArrayList<>(entities);
+				targets.removeIf(target -> target instanceof BabyEnderDragon || passengers.contains(target));
+				return targets;
 			}
 		}
+		return entities;
 	}
 	
 	@Override
@@ -158,9 +138,6 @@ public abstract class MixinEnderDragon extends Mob implements EnderDragonExtensi
 		for (EnderDragonHead head : this.otherHeads)
 			head.tick();
 	}
-	
-	@Accessor
-	public abstract EnderDragonPart getBody();
 	
 	@Override
 	public EnderDragonHead[] getOtherHeads()
