@@ -39,7 +39,7 @@ public class EnderTrigonLangProvider extends LanguageProvider
 		this.add(EnderTrigonEntityTypes.DRAGON_FLAME.get(), "Dragon Flame");
 		this.add(EnderTrigonBlocks.BABY_DRAGON_EGG.get(), "Baby Dragon Egg");
 		this.add(EnderTrigonItems.DRAGON_HORN.get(), "Dragon Horn");
-		this.add("block.ender_trigon_unofficial.baby_dragon_egg.use", "Place down to spawn a tamed, baby Ender Dragon");
+		this.add("block.ender_trigon_unofficial.baby_dragon_egg.use", "Place or right-click to hatch a tamed baby Ender Dragon");
 		this.add("item.ender_trigon_unofficial.dragon_horn.use", "Use to call tamed baby Ender Dragons");
 		this.add("death.attack.dragonFlame", "%1$s was incinerated by %2$s");
 	  	this.add("death.attack.dragonFlame.item", "%1$s was incinerated by %2$s using %3$s");

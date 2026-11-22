@@ -26,6 +26,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import nonamecrackers2.endertrigon.client.config.EnderTrigonClientConfig;
 import nonamecrackers2.endertrigon.client.init.EnderTrigonRenderers;
 import nonamecrackers2.endertrigon.common.config.EnderTrigonConfig;
 import nonamecrackers2.endertrigon.common.data.EnderTrigonDataEvents;
@@ -57,6 +58,7 @@ public class EnderTrigonMod
 		modBus.addListener(EnderTrigonDataEvents::gatherData);
 		modBus.register(EnderTrigonRenderers.class);
 		mod.registerConfig(ModConfig.Type.COMMON, EnderTrigonConfig.COMMON_SPEC);
+		mod.registerConfig(ModConfig.Type.CLIENT, EnderTrigonClientConfig.SPEC);
 	}
 	
 	public void commonSetup(FMLCommonSetupEvent event)

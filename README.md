@@ -18,6 +18,17 @@ Downloads: [CurseForge](https://www.curseforge.com/minecraft/mc-mods/ender-trigo
 
 Ender Trigon Unofficial 1.0.2 fixes a crash when loading with Ender Dragon Plus 0.3 on NeoForge 1.21.1 and 26.1.2. Plus remains optional. Its contact damage and knockback hooks can run alongside Trigon's target filters and three-headed dragon. Trigon releases a grabbed player when another attack interrupts its carry phase. [Ender Dragon Plus on CurseForge](https://www.curseforge.com/minecraft/mc-mods/ender-dragon-plus)
 
+## Adult dragon model
+
+The client uses Trigon's three-headed model by default. Set the option below to use the vanilla model, then restart the client. This setting controls the adult dragon appearance on each client.
+
+- Fabric uses `config/ender_trigon_unofficial-client.json`. Set `"useCustomDragonModel": false`.
+- NeoForge uses `config/ender_trigon_unofficial-client.toml`. Set `useCustomDragonModel = false`.
+
+## Taming a baby Ender Dragon
+
+Place a Baby Dragon Egg to hatch a baby dragon that belongs to you. To tame a baby from an egg dropped by the boss, right-click the egg after it lands and before it hatches. The first player to claim it becomes its owner. Unclaimed eggs dropped by the boss still hatch wild dragons. [Issue #1](https://github.com/lingmu0/Ender-Trigon-Unofficial/issues/1)
+
 ## Building and verification
 
 Check out the desired branch and run `gradlew.bat build` (Windows) or `./gradlew build`. NeoForge 1.21.1 uses Java 21 for Gradle. The other branches use Java 25 for Gradle, with Java 17 or 21 toolchains for the older Fabric targets.
