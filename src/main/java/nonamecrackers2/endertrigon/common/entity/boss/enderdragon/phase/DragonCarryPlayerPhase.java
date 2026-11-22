@@ -48,7 +48,6 @@ public class DragonCarryPlayerPhase extends AbstractDragonPhaseInstance implemen
 			EnderDragonHelper.moveUnrestrictedY(this.dragon, pos, this.getTurnSpeed(), 0.3F);
 			if (this.dragon.position().distanceTo(pos) < 10 && this.dragon.getRandom().nextInt(2) == 0)
 			{
-				this.target.stopRiding();
 				this.dragon.getPhaseManager().setPhase(EnderDragonPhase.HOLDING_PATTERN);
 			}
 		}
@@ -67,6 +66,14 @@ public class DragonCarryPlayerPhase extends AbstractDragonPhaseInstance implemen
 	@Override
 	public void begin()
 	{
+		this.target = null;
+	}
+
+	@Override
+	public void end()
+	{
+		if (!this.dragon.level().isClientSide() && this.target != null && this.target.getVehicle() == this.dragon)
+			this.target.stopRiding();
 		this.target = null;
 	}
 	

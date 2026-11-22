@@ -64,7 +64,7 @@ def verify(archive, minecraft, loader):
             require('fabric.mod.json' not in names, 'Fabric metadata in NeoForge jar')
             metadata = jar.read('META-INF/neoforge.mods.toml').decode()
             require('${' not in metadata, 'Unexpanded NeoForge metadata')
-            for line in ('modLoader = "javafml"', 'loaderVersion = "[11,)"', 'modId = "' + MOD + '"', 'version = "1.0.1"', 'versionRange = "[26.1.2]"', 'modId = "neoforge"'):
+            for line in ('modLoader = "javafml"', 'loaderVersion = "[11,)"', 'modId = "' + MOD + '"', 'version = "1.0.2"', 'versionRange = "[26.1.2]"', 'modId = "neoforge"'):
                 require(line in metadata, 'Missing metadata: ' + line)
 
         # Follow every model, texture and sound owned by this mod; vanilla assets are external.
