@@ -1,6 +1,6 @@
 {
   "block.ender_trigon_unofficial.baby_dragon_egg": "Baby Dragon Egg",
-  "block.ender_trigon_unofficial.baby_dragon_egg.use": "Place down to spawn a tamed, baby Ender Dragon",
+  "block.ender_trigon_unofficial.baby_dragon_egg.use": "Place or right-click to hatch a tamed baby Ender Dragon",
   "death.attack.dragonFlame": "%1$s was incinerated by %2$s",
   "death.attack.dragonFlame.item": "%1$s was incinerated by %2$s using %3$s",
   "ender_trigon_unofficial.subtitle.baby_dragon_egg_breaks": "Baby Dragon Egg Breaks",

@@ -1,7 +1,7 @@
 {
   "itemGroup.ender_trigon_unofficial": "末影三首龙（非官方版）",
   "block.ender_trigon_unofficial.baby_dragon_egg": "幼年末影龙蛋",
-  "block.ender_trigon_unofficial.baby_dragon_egg.use": "放置后会孵化一只已驯服的幼年末影龙",
+  "block.ender_trigon_unofficial.baby_dragon_egg.use": "放置或右键认领，孵化已驯服的幼年末影龙",
   "item.ender_trigon_unofficial.dragon_horn": "龙之号角",
   "item.ender_trigon_unofficial.dragon_horn.use": "吹响后可召唤附近已驯服的幼年末影龙",
   "entity.ender_trigon_unofficial.baby_ender_dragon": "幼年末影龙",

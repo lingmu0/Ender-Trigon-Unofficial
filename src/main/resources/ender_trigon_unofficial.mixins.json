@@ -16,7 +16,8 @@
   ],
   "client": [
     "MixinEnderDragonRenderer",
-    "MixinEnderDragonModel"
+    "MixinEnderDragonModel",
+    "LayerDefinitionAccessor"
   ],
   "minVersion": "0.8",
   "injectors": {
