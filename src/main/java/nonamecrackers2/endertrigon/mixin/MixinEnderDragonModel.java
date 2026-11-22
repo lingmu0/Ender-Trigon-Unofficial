@@ -29,6 +29,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.EnderDragonRenderer;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import nonamecrackers2.endertrigon.client.config.EnderTrigonClientConfig;
 import nonamecrackers2.endertrigon.client.renderer.entity.DragonRendererAdditions;
 
 @Mixin(EnderDragonRenderer.DragonModel.class)
@@ -41,7 +42,17 @@ public abstract class MixinEnderDragonModel
 	@Inject(method = "<init>", at = @At("TAIL"))
 	public void constructorTail(ModelPart root, CallbackInfo ci)
 	{
-		this.heads = new ModelPart[] { root.getChild("head1"), root.getChild("head2") };
+		if (!EnderTrigonClientConfig.useCustomDragonModel()
+				|| !root.hasChild("head1") || !root.hasChild("head2")
+				|| !root.hasChild("neck1") || !root.hasChild("neck2"))
+			return;
+
+		ModelPart first = root.getChild("head1");
+		ModelPart second = root.getChild("head2");
+		if (!first.hasChild("jaw") || !second.hasChild("jaw"))
+			return;
+
+		this.heads = new ModelPart[] { first, second };
 		this.jaws = new ModelPart[] { this.heads[0].getChild("jaw"), this.heads[1].getChild("jaw") };
 		this.necks = new ModelPart[] { root.getChild("neck1"), root.getChild("neck2") };
 	}
@@ -49,6 +60,9 @@ public abstract class MixinEnderDragonModel
 	@Inject(method = "renderToBuffer", at = @At("TAIL"))
 	public void renderToBufferTail(PoseStack stack, VertexConsumer consumer, int packedLight, int overlayTexture, int color, CallbackInfo ci)
 	{
+		if (this.heads == null)
+			return;
+
 		DragonRendererAdditions.renderExtra(stack, consumer, packedLight, overlayTexture, color, this.getEntity(), this.getPartialTicks(), this.heads, this.jaws, this.necks);
 	}
 

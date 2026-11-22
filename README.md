@@ -14,6 +14,17 @@ Install matching jars on both client and server. Fabric builds require [Fabric A
 
 Downloads: [CurseForge](https://www.curseforge.com/minecraft/mc-mods/ender-trigon-unofficial).
 
+## Adult dragon model
+
+The client uses Trigon's three-headed model by default. Set the option below to use the vanilla model, then restart the client. This setting controls the adult dragon appearance on each client.
+
+- Fabric uses `config/ender_trigon_unofficial-client.json`. Set `"useCustomDragonModel": false`.
+- NeoForge uses `config/ender_trigon_unofficial-client.toml`. Set `useCustomDragonModel = false`.
+
+## Taming a baby Ender Dragon
+
+Place a Baby Dragon Egg to hatch a baby dragon that belongs to you. To tame a baby from an egg dropped by the boss, right-click the egg after it lands and before it hatches. The first player to claim it becomes its owner. Unclaimed eggs dropped by the boss still hatch wild dragons. [Issue #1](https://github.com/lingmu0/Ender-Trigon-Unofficial/issues/1)
+
 ## Building and verification
 
 Check out the desired branch and run `gradlew.bat build` (Windows) or `./gradlew build` with Java 25 for Gradle. Java toolchains select Java 17/21 for older Minecraft targets; those JDKs must be installed. The original NeoForge 1.21.1 branch uses Java 21 for Gradle.
